@@ -183,6 +183,7 @@ a{color:inherit}
 .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:rgba(var(--accent-rgb),.85);background:rgba(255,255,255,.065);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.16)}
 .fld.bad input,.fld.bad select,.fld.bad textarea{border-color:#fb7185;box-shadow:0 0 0 4px rgba(251,113,133,.14)}
 .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.row2.one{grid-template-columns:minmax(0,1fr)}
 .chk{display:flex;align-items:flex-start;gap:11px;color:var(--muted);font-size:14px;line-height:1.45;cursor:pointer}
 .chk input{flex:0 0 22px;display:grid;place-content:center;width:22px;height:22px;margin:0;border:1px solid var(--line-strong);border-radius:7px;background:rgba(255,255,255,.04);-webkit-appearance:none;appearance:none;cursor:pointer;transition:background .2s,border-color .2s}
 .chk input::after{content:"";width:11px;height:6px;margin-top:-3px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(-45deg) scale(0);transition:transform .15s}
@@ -333,7 +334,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
 
           <div class="res-empty" id="resEmpty">
             <div class="ghost-price" aria-hidden="true"><span></span><span></span></div>
-            <p>Select a treatment to reveal your guide price.</p>
+            <p id="emptyTxt">Select a treatment to reveal your guide price.</p>
           </div>
 
           <div class="res-body" id="resBody" hidden>
@@ -349,15 +350,15 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
           <button type="button" class="cta idle" id="bookBtn">Book / Request This Consultation&nbsp;→</button>
 
           <form class="lead" id="leadForm" novalidate hidden>
-            <h4 class="form-hd">Request your consultation</h4>
+            <h4 class="form-hd" id="formHd">Request your consultation</h4>
             <div class="demo-note" id="demoNote" hidden><span data-icon="sparkle"></span><span id="demoNoteTxt"></span></div>
             <div class="sum"><span id="sumTxt"></span><b id="sumPrice"></b></div>
             <label class="fld"><span>Full name</span><input id="fName" type="text" autocomplete="name" maxlength="80" required></label>
             <label class="fld"><span>Phone</span><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" required></label>
             <label class="fld"><span>Email</span><input id="fEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" required></label>
-            <div class="row2">
-              <label class="fld"><span>Preferred date</span><input id="fDate" type="date"></label>
-              <label class="fld"><span>Preferred time</span>
+            <div class="row2" id="dateRow">
+              <label class="fld"><span id="dateLbl">Preferred date</span><input id="fDate" type="date"></label>
+              <label class="fld" id="timeFld"><span>Preferred time</span>
                 <select id="fTime">
                   <option value="">Any time</option>
                   <option value="Morning">Morning</option>
@@ -454,8 +455,9 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
      URL parameters
        name      Clinic / studio name
        city      City name (UK + US local price multipliers)
-       niche     aesthetics | tattoo | dentist
-       cc        uk (GBP) | us (USD at 1.4x) | ie (EUR) | au (AUD) | nz (NZD) | ca (CAD)   alias: country
+       niche     aesthetics | tattoo | dentist | cosmetic (surgery & hair transplant) | wedding (photographer) | florist | groomer
+       cc        uk (GBP) | us (USD at 1.4x) | ie (EUR) | au (AUD) | nz (NZD) | ca (CAD) | tr (Turkey: shown in each visitor's own currency)   alias: country
+       cur       Optional fixed display currency for Turkey pages: gbp | eur | usd | aud | nzd | cad
        cemail    Clinic's own email; client requests are routed to it
        demo      0 = Live Client Mode (anything else / absent = Prospect Demo Mode)
        webhook   Optional https:// override for the n8n lead-router webhook
@@ -500,7 +502,24 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     lock: '<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5L12 13l8.5-6.5"/>',
     link: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>',
-    x: '<path d="M6 6l12 12M18 6L6 18"/>'
+    x: '<path d="M6 6l12 12M18 6L6 18"/>',
+    camera: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8.5 7l1.5-2.5h4L15.5 7"/><circle cx="12" cy="13.5" r="3.5"/>',
+    video: '<rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="M15.5 10.5l6-3.5v10l-6-3.5z"/>',
+    rings: '<circle cx="9" cy="14.5" r="5.5"/><circle cx="15" cy="14.5" r="5.5"/><path d="M10.5 5.5L12 3l1.5 2.5L12 7.5z"/>',
+    heart: '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20z"/>',
+    plane: '<path d="M2.5 13.5l19-8-5.5 15-3.5-6.5z"/><path d="M12.5 14L21.5 5.5"/>',
+    tulip: '<path d="M7 4l2.5 2.5L12 3l2.5 3.5L17 4v5a5 5 0 0 1-10 0z"/><path d="M12 14v8"/><path d="M12 19c-2-2-4-2.5-6-2.2.5 2.4 3 3.4 6 3.2"/><path d="M12 19c2-2 4-2.5 6-2.2-.5 2.4-3 3.4-6 3.2"/>',
+    bouquet: '<circle cx="9" cy="6.5" r="2.5"/><circle cx="15" cy="6.5" r="2.5"/><circle cx="12" cy="10.5" r="2.5"/><path d="M8 12.5l4 9.5 4-9.5"/><path d="M10 16.5h4"/>',
+    floralArch: '<path d="M5 21V11a7 7 0 0 1 14 0v10"/><circle cx="5" cy="11" r="1.6"/><circle cx="7.5" cy="6" r="1.6"/><circle cx="12" cy="4" r="1.6"/><circle cx="16.5" cy="6" r="1.6"/><circle cx="19" cy="11" r="1.6"/>',
+    table: '<path d="M3 14h18M6 14v7M18 14v7"/><path d="M10 14l-.8-3.5h5.6L14 14"/><circle cx="12" cy="7" r="2.2"/><circle cx="8.6" cy="8.4" r="1.5"/><circle cx="15.4" cy="8.4" r="1.5"/>',
+    scissors: '<circle cx="6" cy="7" r="2.8"/><circle cx="6" cy="17" r="2.8"/><path d="M8.3 8.6L20 18M8.3 15.4L20 6"/>',
+    paw: '<path d="M12 12.5c2.6 0 5 2.5 5 5 0 1.7-1.3 2.5-2.7 2.5-1 0-1.5-.5-2.3-.5s-1.3.5-2.3.5C8.3 20 7 19.2 7 17.5c0-2.5 2.4-5 5-5z"/><circle cx="6" cy="10" r="1.8"/><circle cx="9.5" cy="6" r="1.8"/><circle cx="14.5" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/>',
+    bath: '<path d="M3 12h18v2.5a5.5 5.5 0 0 1-5.5 5.5h-7A5.5 5.5 0 0 1 3 14.5z"/><path d="M6 12V5.5A2.5 2.5 0 0 1 10.5 4"/><path d="M7 20l-1 2M17 20l1 2"/>',
+    comb: '<rect x="3" y="7" width="18" height="4" rx="1.5"/><path d="M5.5 11v6M9 11v6M12.5 11v6M16 11v6M19.5 11v6"/>',
+    profile: '<path d="M8.5 3.5c4 0 6.5 2.6 6.5 6l2.6 4.3-2.1.8V17a2 2 0 0 1-2 2H12v2.5"/><path d="M8.5 3.5A6 6 0 0 0 6 14.8v6.7"/>',
+    figure: '<circle cx="12" cy="4.5" r="2"/><path d="M9 8.5h6l-1 4 2.5 8.5h-9L10 12.5z"/>',
+    waist: '<path d="M7 3c0 5 3 6 3 9s-3 4-3 9M17 3c0 5-3 6-3 9s3 4 3 9"/>',
+    hair: '<path d="M5 13a7 7 0 0 1 14 0v2a7 7 0 0 1-14 0z"/><path d="M8 9.5L7 6.5M12 8V4.5M16 9.5l1-3M10 8.4l-.5-3M14 8.4l.5-3"/>'
   };
   function icon(name) {
     return '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (ICON_PATHS[name] || '') + '</svg>';
@@ -582,13 +601,188 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       ageGate: false,
       noun: 'treatment',
       clients: 'patients'
+    },
+    cosmetic: {
+      label: 'Cosmetic Surgery',
+      business: 'Cosmetic Surgery',
+      defaultName: 'Your Clinic',
+      accent: '#a78bfa', accentLight: '#ddd6fe', accentDeep: '#6d28d9',
+      headline: ['Your procedure,', 'priced in seconds.'],
+      sub: 'Choose a procedure and scope to see an instant guide price, then request your consultation with the surgeon in one tap.',
+      subTr: 'Choose a procedure and scope to see an instant package price in your own currency, then request your free consultation in one tap.',
+      stepTreatment: 'Choose your procedure',
+      stepSize: 'Choose your scope',
+      sizes: ['Minor / Single Area', 'Standard Procedure', 'Extensive / Combined'],
+      // UK private prices (GBP). "tr" = typical all-inclusive Turkish package prices, as GBP equivalents.
+      treatments: [
+        { name: 'Rhinoplasty (Nose Reshaping)', icon: 'profile', prices: [[4500, 6000], [5500, 7500], [7000, 9500]], tr: [[1900, 2500], [2300, 3000], [2800, 3800]] },
+        { name: 'Breast Augmentation', icon: 'heart', prices: [[4500, 5800], [5200, 7000], [6800, 9000]], tr: [[2300, 2900], [2600, 3300], [3200, 4300]] },
+        { name: 'Liposuction / Vaser Lipo', icon: 'figure', prices: [[2800, 4000], [4000, 6000], [6000, 9500]], tr: [[1300, 1800], [1800, 2600], [2600, 3800]] },
+        { name: 'Tummy Tuck (Abdominoplasty)', icon: 'waist', prices: [[5000, 6500], [6000, 8000], [8000, 11000]], tr: [[2300, 2900], [2700, 3400], [3500, 4800]] },
+        { name: 'Eyelid Surgery (Blepharoplasty)', icon: 'eye', prices: [[2500, 3500], [3200, 4500], [4500, 6500]], tr: [[1100, 1500], [1400, 1900], [1900, 2600]] },
+        { name: 'Hair Transplant (FUE / DHI)', icon: 'hair', prices: [[2500, 4000], [4000, 6500], [6500, 10000]], tr: [[1200, 1700], [1600, 2300], [2100, 3200]] }
+      ],
+      included: ['Consultation with your surgeon', 'Hospital stay, anaesthetic & surgical fees', 'Post-op garments & aftercare reviews'],
+      includedTr: ['Free online consultation & photo assessment', 'Hotel stay & VIP airport transfers', 'Pre-op tests, medication & aftercare'],
+      fine: 'Guide estimate only. Surgery always needs a consultation with your surgeon and a cooling-off period before booking. Your final price is confirmed after assessment.',
+      fineTr: 'Guide package price, shown in your currency at an approximate exchange rate. Your final price is confirmed after your consultation and assessment.',
+      notesPlaceholder: 'What you’d like to change, any previous procedures, questions for the surgeon…',
+      notesTr: 'Where you’re travelling from, when you’d like to travel, any previous procedures or questions…',
+      dateLabelTr: 'Preferred travel date',
+      dateNoteTr: 'Travel date',
+      emptyTxt: 'Select a procedure to reveal your guide price.',
+      ageGate: true,
+      noun: 'procedure',
+      clients: 'patients',
+      trLevel: 0.45
+    },
+    wedding: {
+      label: 'Wedding Photography',
+      business: 'Wedding Photographer',
+      defaultName: 'Your Studio',
+      accent: '#fb7185', accentLight: '#fecdd3', accentDeep: '#be123c',
+      headline: ['Your wedding day,', 'priced in seconds.'],
+      sub: 'Choose your coverage and package to see an instant guide price, then check availability for your date in one tap.',
+      stepTreatment: 'Choose your coverage',
+      stepSize: 'Choose your package',
+      sizes: ['Essentials · Key Moments', 'Signature · Most of the Day', 'Luxury · Full Day + Album'],
+      treatments: [
+        { name: 'Wedding Day Photography', icon: 'camera', prices: [[700, 1100], [1100, 1700], [1600, 2500]] },
+        { name: 'Photography + Second Shooter', icon: 'rings', prices: [[950, 1400], [1450, 2100], [2000, 3000]] },
+        { name: 'Photo + Videography', icon: 'video', prices: [[1400, 2200], [2200, 3300], [3000, 4600]] },
+        { name: 'Elopement / Registry Office', icon: 'heart', prices: [[350, 650], [550, 900], [800, 1300]] },
+        { name: 'Engagement / Pre-Wedding Shoot', icon: 'sparkle', prices: [[180, 300], [250, 400], [350, 550]] },
+        { name: 'Destination Wedding', icon: 'plane', prices: [[1600, 2400], [2200, 3200], [2900, 4400]] }
+      ],
+      included: ['Pre-wedding planning call', 'Professionally edited high-res images', 'Private online gallery to share'],
+      fine: 'Guide estimate only. Your final price depends on your date, venue and coverage, and is confirmed when you book.',
+      notesPlaceholder: 'Your venue, rough guest numbers and the moments that matter most to you…',
+      dateLabel: 'Wedding date',
+      dateNote: 'Wedding date',
+      hideTime: true,
+      cta: 'Check My Date & Price',
+      formHd: 'Check your wedding date',
+      emptyTxt: 'Select your coverage to reveal your guide price.',
+      metaAsk: 'check availability for your wedding date',
+      pitchAsk: 'check your availability for their date',
+      mailAsk: 'We would love to check your availability for our wedding.',
+      subjectPrefix: 'Wedding enquiry',
+      leads: 'wedding enquiries',
+      doneLine: 'will be in touch shortly to confirm availability for your date.',
+      confirmAt: 'confirmed when you book',
+      ageGate: false,
+      noun: 'package',
+      clients: 'couples',
+      client: 'couple'
+    },
+    florist: {
+      label: 'Wedding Flowers',
+      business: 'Wedding & Event Florist',
+      defaultName: 'Your Florist',
+      accent: '#4ade80', accentLight: '#bbf7d0', accentDeep: '#15803d',
+      headline: ['Your wedding flowers,', 'priced in seconds.'],
+      sub: 'Choose your flowers and style to see an instant guide price, then request your flower consultation in one tap.',
+      stepTreatment: 'Choose your flowers',
+      stepSize: 'Choose your style',
+      sizes: ['Intimate · Simple & Seasonal', 'Classic · Lush & Full', 'Grand · Luxe Statement'],
+      treatments: [
+        { name: 'Bridal Bouquet', icon: 'bouquet', prices: [[90, 150], [150, 230], [230, 380]] },
+        { name: 'Bridal Party Bouquets & Buttonholes', icon: 'tulip', prices: [[200, 350], [350, 600], [600, 1000]] },
+        { name: 'Ceremony Arch & Aisle', icon: 'floralArch', prices: [[350, 650], [650, 1200], [1200, 2500]] },
+        { name: 'Table Centrepieces', icon: 'table', prices: [[250, 500], [500, 1100], [1100, 2500]] },
+        { name: 'Full Wedding Flowers', icon: 'rings', prices: [[800, 1400], [1500, 2800], [3000, 6000]] },
+        { name: 'Event & Venue Styling', icon: 'sparkle', prices: [[300, 600], [600, 1200], [1200, 3000]] }
+      ],
+      included: ['Design consultation & moodboard', 'Seasonal, hand-picked flowers', 'Delivery & set-up on the day'],
+      fine: 'Guide estimate only. Your final price depends on your date, guest numbers and flower choices, and is confirmed in your quote.',
+      notesPlaceholder: 'Your venue, colour palette, guest numbers and any flowers you love…',
+      dateLabel: 'Wedding / event date',
+      dateNote: 'Event date',
+      hideTime: true,
+      cta: 'Request This Flower Quote',
+      formHd: 'Request your flower consultation',
+      emptyTxt: 'Select your flowers to reveal your guide price.',
+      metaAsk: 'request your flower consultation',
+      pitchAsk: 'request a flower consultation',
+      mailAsk: 'We would like a quote for our wedding / event flowers.',
+      subjectPrefix: 'Flower enquiry',
+      leads: 'flower enquiries',
+      doneLine: 'will be in touch shortly to talk through your flowers.',
+      confirmAt: 'confirmed in your personal quote',
+      ageGate: false,
+      noun: 'design',
+      clients: 'couples',
+      client: 'couple'
+    },
+    groomer: {
+      label: 'Dog Grooming',
+      business: 'Dog Grooming',
+      defaultName: 'Your Salon',
+      accent: '#2dd4bf', accentLight: '#99f6e4', accentDeep: '#0f766e',
+      headline: ['Your dog’s groom,', 'priced in seconds.'],
+      sub: 'Choose a service and your dog’s size to see an instant guide price, then request your appointment in one tap.',
+      stepTreatment: 'Choose your service',
+      stepSize: 'Choose your dog’s size',
+      sizes: ['Small (e.g. Shih Tzu, Yorkie)', 'Medium (e.g. Cockapoo, Spaniel)', 'Large (e.g. Doodle, Retriever)'],
+      treatments: [
+        { name: 'Full Groom', icon: 'scissors', prices: [[35, 45], [45, 60], [60, 85]] },
+        { name: 'Bath, Brush & Tidy', icon: 'bath', prices: [[25, 35], [30, 45], [40, 60]] },
+        { name: 'Puppy Intro Groom', icon: 'heart', prices: [[20, 30], [25, 35], [30, 40]] },
+        { name: 'Hand Stripping', icon: 'comb', prices: [[45, 60], [55, 75], [70, 100]] },
+        { name: 'De-Shedding Treatment', icon: 'waves', prices: [[35, 45], [45, 60], [60, 80]] },
+        { name: 'Nails, Ears & Hygiene Tidy', icon: 'paw', prices: [[10, 15], [12, 18], [15, 22]] }
+      ],
+      included: ['Health & coat check on arrival', 'Gentle, low-stress handling', 'Shampoo & finish to suit the coat'],
+      fine: 'Guide estimate only. Your final price depends on coat condition, matting and temperament.',
+      notesPlaceholder: 'Your dog’s name, breed, age, coat condition and anything we should know…',
+      cta: 'Book / Request This Groom',
+      formHd: 'Request your grooming appointment',
+      emptyTxt: 'Select a service to reveal your guide price.',
+      metaAsk: 'request your grooming appointment',
+      pitchAsk: 'request an appointment',
+      mailAsk: 'I would like to book a grooming appointment for my dog.',
+      subjectPrefix: 'Grooming request',
+      leads: 'grooming bookings',
+      doneLine: 'will be in touch shortly to confirm your appointment.',
+      confirmAt: 'confirmed when you book',
+      ageGate: false,
+      noun: 'service',
+      clients: 'customers',
+      client: 'customer'
     }
   };
+
+  // Shared wording for niches that sell a consultation (aesthetics, tattoo, dentistry, surgery)
+  Object.keys(NICHES).forEach(function (k) {
+    var n = NICHES[k];
+    var d = {
+      client: n.clients === 'patients' ? 'patient' : 'client',
+      cta: 'Book / Request This Consultation',
+      formHd: 'Request your consultation',
+      dateLabel: 'Preferred date',
+      dateNote: 'Preferred',
+      hideTime: false,
+      emptyTxt: 'Select a treatment to reveal your guide price.',
+      metaAsk: 'request your consultation',
+      pitchAsk: 'request a consultation',
+      mailAsk: 'I would like to request a consultation.',
+      subjectPrefix: 'Consultation request',
+      leads: 'consultation requests',
+      doneLine: 'will be in touch shortly to arrange your consultation.',
+      confirmAt: 'confirmed at your consultation',
+      trLevel: 0.45
+    };
+    Object.keys(d).forEach(function (f) { if (!n.hasOwnProperty(f)) n[f] = d[f]; });
+  });
 
   var NICHE_ALIASES = {
     aesthetics: 'aesthetics', aesthetic: 'aesthetics', aesthetician: 'aesthetics', clinic: 'aesthetics', beauty: 'aesthetics', skin: 'aesthetics', skincare: 'aesthetics', medspa: 'aesthetics', medicalspa: 'aesthetics', injector: 'aesthetics', cosmetics: 'aesthetics',
     tattoo: 'tattoo', tattoos: 'tattoo', tattooist: 'tattoo', tattoostudio: 'tattoo', studio: 'tattoo', ink: 'tattoo',
-    dentist: 'dentist', dentists: 'dentist', dental: 'dentist', dentistry: 'dentist', cosmeticdentist: 'dentist', cosmeticdentistry: 'dentist', orthodontist: 'dentist', orthodontics: 'dentist', smile: 'dentist'
+    dentist: 'dentist', dentists: 'dentist', dental: 'dentist', dentistry: 'dentist', cosmeticdentist: 'dentist', cosmeticdentistry: 'dentist', orthodontist: 'dentist', orthodontics: 'dentist', smile: 'dentist',
+    cosmetic: 'cosmetic', cosmeticsurgery: 'cosmetic', cosmeticsurgeon: 'cosmetic', plasticsurgery: 'cosmetic', plasticsurgeon: 'cosmetic', surgery: 'cosmetic', surgeon: 'cosmetic', aestheticsurgery: 'cosmetic', hairtransplant: 'cosmetic', hairclinic: 'cosmetic', hair: 'cosmetic',
+    wedding: 'wedding', weddings: 'wedding', weddingphotographer: 'wedding', weddingphotography: 'wedding', photographer: 'wedding', photographers: 'wedding', photography: 'wedding', photo: 'wedding',
+    florist: 'florist', florists: 'florist', floristry: 'florist', flowers: 'florist', flower: 'florist', weddingflowers: 'florist', weddingflorist: 'florist',
+    groomer: 'groomer', groomers: 'groomer', grooming: 'groomer', doggroomer: 'groomer', doggrooming: 'groomer', petgrooming: 'groomer', petgroomer: 'groomer', dog: 'groomer', dogs: 'groomer'
   };
 
   /* ---------- Local price multipliers (relative to each country's average) ---------- */
@@ -632,6 +826,11 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     'auckland': 1.1, 'wellington': 1.05, 'christchurch': 0.95, 'hamilton': 0.95, 'tauranga': 1.0,
     'dunedin': 0.92, 'queenstown': 1.15, 'napier': 0.95, 'nelson': 0.95
   };
+  CITY_MULT.tr = {
+    'istanbul': 1.0, 'antalya': 0.95, 'izmir': 0.95, 'ankara': 0.95, 'bursa': 0.9, 'alanya': 0.92, 'bodrum': 1.05,
+    'fethiye': 0.95, 'marmaris': 0.95, 'kusadasi': 0.95, 'kayseri': 0.9, 'konya': 0.9, 'gaziantep': 0.9, 'adana': 0.9,
+    'mersin': 0.9, 'trabzon': 0.9, 'eskisehir': 0.9, 'denizli': 0.9, 'kocaeli': 0.92, 'samsun': 0.9
+  };
   CITY_MULT.ca = {
     'toronto': 1.15, 'vancouver': 1.2, 'montreal': 1.0, 'calgary': 1.05, 'ottawa': 1.0, 'edmonton': 0.95,
     'winnipeg': 0.92, 'halifax': 0.95, 'victoria': 1.05, 'mississauga': 1.1, 'quebec city': 0.95, 'kelowna': 1.0
@@ -646,13 +845,39 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     nz: { code: 'NZD', locale: 'en-NZ', sym: 'NZ$', level: 2.05, name: 'NZ dollars' },
     ca: { code: 'CAD', locale: 'en-CA', sym: 'C$', level: 1.75, name: 'Canadian dollars' }
   };
+
+  // Turkey: clinics there mostly treat patients who fly in from abroad, so a Turkish page shows each
+  // visitor prices in their own currency (from their time zone, then their browser language), converted
+  // from the package prices above at approximate exchange rates. ?cur= fixes one currency instead.
+  var FX_FROM_GBP = { GBP: 1, EUR: 1.16, USD: 1.33, AUD: 2.05, NZD: 2.3, CAD: 1.85 };
+  var VISITOR_CUR = {
+    GBP: ['en-GB', '£', 'pounds'], EUR: ['en-IE', '€', 'euros'], USD: ['en-US', '$', 'US dollars'],
+    AUD: ['en-AU', 'A$', 'Australian dollars'], NZD: ['en-NZ', 'NZ$', 'NZ dollars'], CAD: ['en-CA', 'C$', 'Canadian dollars']
+  };
+  function visitorCurrency(forced) {
+    forced = String(forced || '').toUpperCase();
+    if (FX_FROM_GBP.hasOwnProperty(forced)) return forced;
+    var tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { tz = ''; }
+    if (/^Europe\/(London|Belfast|Guernsey|Jersey|Isle_of_Man)$/.test(tz)) return 'GBP';
+    if (/^Australia\//.test(tz)) return 'AUD';
+    if (/^(Pacific\/(Auckland|Chatham)|NZ)$/.test(tz)) return 'NZD';
+    if (/^America\/(Toronto|Vancouver|Montreal|Edmonton|Winnipeg|Halifax|Regina|St_Johns|Moncton|Whitehorse|Yellowknife|Iqaluit|Glace_Bay|Goose_Bay|Swift_Current|Dawson_Creek|Fort_Nelson|Creston|Atikokan|Thunder_Bay|Rankin_Inlet|Cambridge_Bay|Inuvik|Resolute|Dawson)$/.test(tz)) return 'CAD';
+    if (/^(America\/|US\/|Pacific\/Honolulu$|Asia\/(Dubai|Riyadh|Qatar|Kuwait|Bahrain|Muscat)$)/.test(tz)) return 'USD';
+    if (/^(Europe\/|Atlantic\/(Canary|Madeira|Azores)$)/.test(tz)) return 'EUR';
+    var lang = String((navigator.languages && navigator.languages[0]) || navigator.language || '');
+    var region = (lang.split(/[-_]/)[1] || '').toUpperCase();
+    var byRegion = { GB: 'GBP', UK: 'GBP', US: 'USD', AU: 'AUD', NZ: 'NZD', CA: 'CAD' };
+    return byRegion[region] || 'EUR';
+  }
   var COUNTRY_ALIASES = {
     uk: 'uk', gb: 'uk', gbr: 'uk', unitedkingdom: 'uk', greatbritain: 'uk', britain: 'uk', england: 'uk', scotland: 'uk', wales: 'uk', northernireland: 'uk',
     us: 'us', usa: 'us', unitedstates: 'us', unitedstatesofamerica: 'us', america: 'us',
     ie: 'ie', irl: 'ie', ireland: 'ie', eire: 'ie', republicofireland: 'ie',
     au: 'au', aus: 'au', australia: 'au',
     nz: 'nz', nzl: 'nz', newzealand: 'nz', aotearoa: 'nz',
-    ca: 'ca', can: 'ca', canada: 'ca'
+    ca: 'ca', can: 'ca', canada: 'ca',
+    tr: 'tr', tur: 'tr', turkey: 'tr', turkiye: 'tr', trkiye: 'tr'
   };
 
   var CITY_ALIASES = {
@@ -661,7 +886,8 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     'atl': 'atlanta', 'saint louis': 'st louis', 'nola': 'new orleans', 'slc': 'salt lake city',
     'city of london': 'london', 'central london': 'london', 'greater london': 'london', 'greater manchester': 'manchester',
     'newcastle upon tyne': 'newcastle', 'kingston upon hull': 'hull', 'brighton and hove': 'brighton', 'brighton hove': 'brighton',
-    'stoke': 'stoke on trent', 'saint albans': 'st albans'
+    'stoke': 'stoke on trent', 'saint albans': 'st albans',
+    'stambul': 'istanbul', 'antalya province': 'antalya', 'izmir province': 'izmir'
   };
 
   /* ---------- Read URL parameters ---------- */
@@ -685,13 +911,15 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     param('services').split(',').forEach(function (s) {
       s = clean(s, 120).replace(/ /g, '+').toLowerCase();
       if (!cemail && EMAIL_RE.test(s)) cemail = s;
-      else if (!ccRaw && /^(us|uk|gb|ie|au|nz|ca)$/.test(s)) ccRaw = s;
+      else if (!ccRaw && /^(us|uk|gb|ie|au|nz|ca|tr)$/.test(s)) ccRaw = s;
     });
   }
 
   var cityRaw = clean(param('city'), 48);
   function cityKey(c) {
-    var k = c.split(',')[0].toLowerCase().replace(/\./g, '').replace(/[^a-z]+/g, ' ').trim();
+    var k = c.split(',')[0].toLowerCase().replace(/ı/g, 'i');
+    if (k.normalize) k = k.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    k = k.replace(/\./g, '').replace(/[^a-z]+/g, ' ').trim();
     return CITY_ALIASES.hasOwnProperty(k) ? CITY_ALIASES[k] : k;
   }
   function displayCity(raw) {
@@ -711,7 +939,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   var country = COUNTRY_ALIASES[ccRaw] || '';
   if (!country) {
     if (ck && CITY_MULT.uk.hasOwnProperty(ck)) country = 'uk';
-    else ['us', 'ie', 'au', 'nz', 'ca'].forEach(function (c) { if (!country && ck && CITY_MULT[c].hasOwnProperty(ck)) country = c; });
+    else ['us', 'ie', 'au', 'nz', 'ca', 'tr'].forEach(function (c) { if (!country && ck && CITY_MULT[c].hasOwnProperty(ck)) country = c; });
     if (!country) country = 'uk';
   }
 
@@ -721,8 +949,17 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   if (isFinite(multOverride) && multOverride > 0) cityMult = Math.min(2, Math.max(0.5, multOverride));
   cityMult = Math.round(cityMult * 100) / 100;
 
+  if (country === 'tr') {
+    var vc = visitorCurrency(param('cur'));
+    COUNTRIES.tr = { code: vc, locale: VISITOR_CUR[vc][0], sym: VISITOR_CUR[vc][1], level: FX_FROM_GBP[vc], name: VISITOR_CUR[vc][2], visitor: true };
+    // Turkish pages use the travel-patient wording where a niche has it
+    ['sub', 'included', 'fine', 'notes', 'dateLabel', 'dateNote'].forEach(function (f) {
+      var key = f === 'notes' ? 'notesTr' : f + 'Tr';
+      if (N.hasOwnProperty(key)) N[f === 'notes' ? 'notesPlaceholder' : f] = N[key];
+    });
+  }
   var CUR = COUNTRIES[country];
-  var curLabel = CUR.code === 'GBP' ? '£' : CUR.code === 'USD' ? '$' : CUR.code;
+  var curLabel = CUR.visitor ? 'each visitor’s own currency' : CUR.code === 'GBP' ? '£' : CUR.code === 'USD' ? '$' : CUR.code;
   var numFmt = null;
   try { numFmt = new Intl.NumberFormat(CUR.locale, { style: 'currency', currency: CUR.code, minimumFractionDigits: 0, maximumFractionDigits: 0 }); } catch (e) { numFmt = null; }
   function fmt(v) {
@@ -737,11 +974,12 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
 
   /* ---------- Pricing ---------- */
   function roundNice(v) {
-    var step = v < 1000 ? 5 : v < 10000 ? 50 : 100;
+    var step = v < 20 ? 1 : v < 1000 ? 5 : v < 10000 ? 50 : 100;
     return Math.max(step, Math.round(v / step) * step);
   }
   function priceFor(t, s) {
-    var r = N.treatments[t].prices[s];
+    var tr = N.treatments[t], r = tr.prices[s];
+    if (country === 'tr') r = tr.tr ? tr.tr[s] : [r[0] * N.trLevel, r[1] * N.trLevel];
     var m = cityMult * CUR.level;
     var lo = roundNice(r[0] * m);
     var hi = roundNice(r[1] * m);
@@ -789,7 +1027,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   function hexToRgb(h) { var n = parseInt(h.replace('#', ''), 16); return ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255); }
   function initials(s) {
     var words = s.replace(/[^A-Za-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
-    var core = words.filter(function (w) { return !/^(the|and|of|ltd|limited|llc|inc|co|clinic|studio|studios|practice|dental|dentistry|aesthetics|tattoo|tattoos)$/i.test(w); });
+    var core = words.filter(function (w) { return !/^(the|and|of|ltd|limited|llc|inc|co|clinic|studio|studios|practice|dental|dentistry|aesthetics|tattoo|tattoos|photography|photographer|photo|films|flowers|florist|florists|floristry|grooming|groomers|groomer|surgery|surgical|cosmetic|plastic|hair|transplant|weddings|wedding|events)$/i.test(w); });
     var w = core.length ? core : words;
     var out = ((w[0] || '').charAt(0) + (w[1] || '').charAt(0)).toUpperCase().replace(/[^A-Z0-9]/g, '');
     return out || 'Q';
@@ -835,7 +1073,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   root.lang = CUR.locale;
 
   document.title = isDemo ? clinicName + ' · Instant Quote Preview' : clinicName + ' · Instant ' + N.label + ' Quote';
-  var metaDesc = 'Get an instant ' + (cityName ? cityName + ' ' : '') + 'guide price from ' + clinicName + ' and request your consultation in seconds.';
+  var metaDesc = 'Get an instant ' + (cityName ? cityName + ' ' : '') + 'guide price from ' + clinicName + ' and ' + N.metaAsk + ' in seconds.';
   var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', metaDesc);
   var ogt = document.querySelector('meta[property="og:title"]'); if (ogt) ogt.setAttribute('content', clinicName + ' · Instant ' + N.label + ' Quote');
   var ogd = document.querySelector('meta[property="og:description"]'); if (ogd) ogd.setAttribute('content', metaDesc);
@@ -863,7 +1101,14 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   setText('t1', N.stepTreatment);
   setText('t2', N.stepSize);
   setText('resFine', N.fine);
-  setText('resLoc', (cityName ? cityName + ' ' : 'Local ') + 'guide price · ' + CUR.code);
+  setText('resLoc', CUR.visitor
+    ? (cityName ? cityName + ' ' : '') + 'package price · ' + CUR.code + ' (approx.)'
+    : (cityName ? cityName + ' ' : 'Local ') + 'guide price · ' + CUR.code);
+  setText('emptyTxt', N.emptyTxt);
+  setText('formHd', N.formHd);
+  setText('dateLbl', N.dateLabel);
+  bookBtn.textContent = N.cta + '\u00a0→';
+  if (N.hideTime) { $('timeFld').hidden = true; $('dateRow').classList.add('one'); }
   setText('consentTxt', 'I agree to ' + clinicName + ' contacting me about this enquiry.');
   setText('privacyTxt', 'Your details are only shared with ' + clinicName + '.');
   $('fNotes').setAttribute('placeholder', N.notesPlaceholder);
@@ -880,8 +1125,8 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
 
   var year = new Date().getFullYear();
   setText('footTxt', isDemo
-    ? 'Interactive preview for ' + clinicName + '. Guide prices reflect typical ' + cityLabel + ' ' + N.label.toLowerCase() + ' rates in ' + CUR.code + '.'
-    : '© ' + year + ' ' + clinicName + '. Prices shown are guide estimates for ' + cityLabel + ' and are confirmed at your consultation.');
+    ? 'Interactive preview for ' + clinicName + '. Guide prices reflect typical ' + cityLabel + ' ' + N.label.toLowerCase() + ' rates' + (CUR.visitor ? ', shown in each visitor’s own currency.' : ' in ' + CUR.code + '.')
+    : '© ' + year + ' ' + clinicName + '. Prices shown are guide estimates for ' + cityLabel + ' and are ' + N.confirmAt + '.');
 
   /* ---------- Treatments + sizes ---------- */
   N.treatments.forEach(function (t, i) {
@@ -1059,7 +1304,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   function buildPayload(v) {
     var t = N.treatments[state.t], pr = priceFor(state.t, state.s);
     var pref = [v.date ? prettyDate(v.date) : '', v.time].filter(Boolean).join(', ');
-    var notes = [pref ? 'Preferred: ' + pref : '', v.notes].filter(Boolean).join('\n');
+    var notes = [pref ? N.dateNote + ': ' + pref : '', v.notes].filter(Boolean).join('\n');
     return {
       clinic: { name: clinicName, city: cityName, niche: nicheKey, email: cemail },
       client: { name: v.name, phone: v.phone, email: v.email, notes: notes },
@@ -1076,13 +1321,13 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   }
 
   function mailtoHref(p) {
-    var subject = 'Consultation request: ' + p.estimate.treatment + ' (' + p.client.name + ')';
+    var subject = N.subjectPrefix + ': ' + p.estimate.treatment + ' (' + p.client.name + ')';
     var lines = [
       'Hi ' + p.clinic.name + ',',
       '',
-      'I would like to request a consultation.',
+      N.mailAsk,
       '',
-      'Treatment: ' + p.estimate.treatment,
+      N.noun.charAt(0).toUpperCase() + N.noun.slice(1) + ': ' + p.estimate.treatment,
       'Option: ' + p.estimate.size,
       'Guide estimate: ' + fmt(p.estimate.low) + ' – ' + fmt(p.estimate.high),
       '',
@@ -1137,7 +1382,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
 
     if (kind === 'demo') {
       setText('doneTitle', 'That’s a new lead.');
-      setText('doneMsg', 'In live mode, ' + clinicName + ' gets this request instantly' + (cemail ? ' at ' + cemail : ' by email') + ', with the ' + (N.clients === 'patients' ? 'patient' : 'client') + '’s name, number, ' + N.noun + ' and budget range.');
+      setText('doneMsg', 'In live mode, ' + clinicName + ' gets this request instantly' + (cemail ? ' at ' + cemail : ' by email') + ', with the ' + N.client + '’s name, number, ' + N.noun + ' and budget range.');
       doneActivate.textContent = 'Activate for ' + clinicName + ' →';
       doneActivate.hidden = false;
     } else if (kind === 'mail-auto') {
@@ -1152,7 +1397,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       mailBtn.hidden = false;
     } else {
       setText('doneTitle', 'Request sent');
-      setText('doneMsg', 'Thank you' + (first ? ', ' + first : '') + '. ' + clinicName + ' has your request and will be in touch shortly to arrange your consultation.');
+      setText('doneMsg', 'Thank you' + (first ? ', ' + first : '') + '. ' + clinicName + ' has your request and ' + N.doneLine);
     }
 
     var recap = $('recap');
@@ -1288,7 +1533,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     setText('demoNoteTxt', 'Preview: this is exactly what your ' + N.clients + ' see. In live mode, requests go straight to ' + (cemail || 'your inbox') + '.');
 
     setText('pitchEyebrow', 'Made for ' + clinicName);
-    setText('pitchSub', 'Your ' + N.clients + ' get an instant ' + cityLabel + ' price the moment they’re interested, then request a consultation in one tap. No DMs, no back-and-forth, no missed enquiries at 11pm.');
+    setText('pitchSub', 'Your ' + N.clients + ' get an instant ' + cityLabel + ' price the moment they’re interested, then ' + N.pitchAsk + ' in one tap. No DMs, no back-and-forth, no missed enquiries at 11pm.');
     var ticks = $('pitchTicks');
     [
       'Pre-qualified leads: every request includes the ' + N.noun + ', option and budget range.',
@@ -1308,12 +1553,12 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     setText('pitchBtn', 'Activate for ' + clinicName + ' →');
 
     setText('sheetTitle', clinicName + '’s 24/7 Booking Funnel');
-    setText('sheetSub', 'An instant-quote page that turns Instagram views into consultation requests, even while you sleep.');
-    setText('howLive', 'Add the link to your Instagram bio and website. Consultation requests land in ' + (cemail || 'your inbox') + '.');
+    setText('sheetSub', 'An instant-quote page that turns Instagram views into ' + N.leads + ', even while you sleep.');
+    setText('howLive', 'Add the link to your Instagram bio and website. ' + N.leads.charAt(0).toUpperCase() + N.leads.slice(1) + ' land in ' + (cemail || 'your inbox') + '.');
     var tags = $('sheetTags');
     [
       ['sparkle', N.label + ' menu'],
-      ['pin', cityLabel.charAt(0).toUpperCase() + cityLabel.slice(1) + ' pricing in ' + curLabel],
+      ['pin', CUR.visitor ? 'Prices in each visitor’s currency' : cityLabel.charAt(0).toUpperCase() + cityLabel.slice(1) + ' pricing in ' + curLabel],
       ['mail', 'Leads to your inbox'],
       ['shield', 'Mobile-first design']
     ].forEach(function (tg) {
@@ -1324,8 +1569,10 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     });
     checkoutBtn.href = checkoutUrl();
     setText('sheetPrice', PRICE_LABEL);
-    setText('pitchFine', 'One-off ' + PRICE_LABEL + (country !== 'uk' ? ' (charged in ' + CUR.name + ' at checkout)' : '') + ' · Secure Stripe checkout · Automatic delivery');
-    setText('sheetFine', country !== 'uk'
+    setText('pitchFine', 'One-off ' + PRICE_LABEL + (CUR.visitor ? ' (shown in your local currency at checkout)' : country !== 'uk' ? ' (charged in ' + CUR.name + ' at checkout)' : '') + ' · Secure Stripe checkout · Automatic delivery');
+    setText('sheetFine', CUR.visitor
+      ? 'Secure checkout by Stripe. You will see the exact price in your local currency before you pay. No calls, no setup.'
+      : country !== 'uk'
       ? 'Secure checkout by Stripe. You will see the exact price in ' + CUR.name + ' before you pay. No calls, no setup.'
       : 'Secure checkout by Stripe. Outside the UK, checkout shows the exact price in your local currency. No calls, no setup.');
 
