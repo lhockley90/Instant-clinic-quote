@@ -13,6 +13,9 @@
 <meta property="og:title" content="Instant Quote Calculator">
 <meta property="og:description" content="Get an instant guide price and request your consultation in seconds.">
 <link rel="icon" id="favicon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&amp;display=swap">
 <style>
 :root{
   --accent:#f472b6;--accent-rgb:244,114,182;
@@ -221,9 +224,6 @@ a{color:inherit}
 .ig-l{display:inline-flex;align-items:center;gap:6px;margin-top:5px;padding:5px 10px;border-radius:999px;background:rgba(var(--accent-rgb),.14);color:var(--accent-light);font-size:12.5px;font-weight:700}
 .ig-l .i{width:14px;height:14px}
 .ig-cap{margin:-6px 0 16px;color:var(--faint);font-size:12px;text-align:center}
-.price-tag{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;padding:14px 16px;border:1px solid rgba(var(--accent-rgb),.32);border-radius:16px;background:rgba(var(--accent-rgb),.08)}
-.pt-amount{color:var(--accent-light);font-family:var(--serif);font-size:38px;font-weight:600;line-height:1;font-variant-numeric:lining-nums}
-.pt-note{color:var(--muted);font-size:13px;line-height:1.35}
 
 /* ---------- Dock ---------- */
 .dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 16px;border:1px solid var(--line-strong);border-radius:20px;background:rgba(16,16,22,.8);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:0 18px 44px -12px rgba(0,0,0,.75);opacity:0;transform:translateY(calc(100% + 30px));pointer-events:none;transition:transform .4s var(--ease),opacity .3s}
@@ -260,6 +260,71 @@ a{color:inherit}
 .foot p{max-width:62ch;margin:0 auto}
 noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:20px;text-align:center}
 
+/* ---------- Demo bar: open + share ---------- */
+.topbar{flex-wrap:nowrap;gap:8px;padding:8px 10px 8px 14px}
+.bar-open{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 10px;margin:0;padding:2px 0;border:0;background:none;color:inherit;font:inherit;line-height:inherit;text-align:center}
+.bar-share{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:7px 13px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:rgba(255,255,255,.08);color:var(--text);font-size:12px;font-weight:700;letter-spacing:.04em}
+.bar-share .i{width:15px;height:15px}
+.bar-share:hover{background:rgba(255,255,255,.15)}
+@media (max-width:520px){.topbar .live{max-width:100%;min-width:0}.topbar .live>span{white-space:nowrap}.topbar .live b{min-width:0;max-width:none}}
+@media (max-width:360px){.bar-share span{display:none}.bar-share{padding:7px 9px}}
+
+/* ---------- Contact preference ---------- */
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:10px 14px;border:1px solid var(--line-strong);border-radius:999px;background:rgba(255,255,255,.04);color:var(--muted);font-size:14px;font-weight:600;transition:border-color .2s,background .2s,color .2s}
+.pill .i{width:16px;height:16px}
+.pill[aria-pressed="true"]{border-color:rgba(var(--accent-rgb),.85);background:rgba(var(--accent-rgb),.16);color:var(--text)}
+.pill[aria-pressed="true"] .i{color:var(--accent)}
+
+/* ---------- Single price + menu loading ---------- */
+.price.single .dash,.price.single #pHigh{display:none}
+.grid.loading{opacity:.3;pointer-events:none}
+.grid{transition:opacity .3s}
+
+/* ---------- Lead email preview ---------- */
+.mailprev{margin:0 0 14px;overflow:hidden;border-radius:16px;background:#fbfbfd;color:#16161d;font-size:13.5px;line-height:1.45;text-align:left;box-shadow:0 18px 40px -18px rgba(0,0,0,.75)}
+.mp-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #e7e7ee;background:#f1f1f6;color:#6b6b76;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.mp-bar .i{width:14px;height:14px;color:var(--accent-deep)}
+.mp-bar em{margin-left:auto;font-style:normal;font-weight:600;letter-spacing:0;text-transform:none}
+.mp-body{padding:13px 14px 14px}
+.mp-from{display:grid;gap:1px;color:#6b6b76;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.mp-from span{overflow:hidden;font-size:12px;font-weight:500;letter-spacing:0;text-overflow:ellipsis;text-transform:none;white-space:nowrap}
+.mp-subj{margin:4px 0 10px;color:#16161d;font-size:15.5px;font-weight:700;line-height:1.3}
+.mp-rows{display:grid;gap:5px;margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#f1f1f6}
+.mp-rows div{display:flex;justify-content:space-between;gap:12px}
+.mp-rows span{color:#6b6b76}
+.mp-rows b{font-weight:600;text-align:right;overflow-wrap:anywhere}
+.mp-acts{display:flex;flex-wrap:wrap;gap:6px}
+.mp-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:9px;background:#16161d;color:#fff;font-size:12.5px;font-weight:700}
+.mp-chip.wa{background:#1a9e50}
+.mp-chip .i{width:14px;height:14px}
+.mp-cap{margin:-4px 0 16px;color:var(--faint);font-size:12px;text-align:center}
+
+/* ---------- Owner price editor ---------- */
+.editor{margin:6px 0 4px;border-color:rgba(var(--accent-rgb),.45)}
+.editor h3{margin:6px 0 6px;font-family:var(--serif);font-size:clamp(28px,7.5vw,38px);font-weight:600;line-height:1.08}
+.ed-sub{margin:0 0 6px;color:var(--muted);font-size:14.5px}
+.ed-cur{margin:0 0 16px;color:var(--faint);font-size:13px}
+.ed-list{display:grid;gap:12px}
+.ed-item{display:grid;gap:8px;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.24)}
+.ed-top{display:flex;align-items:center;gap:8px}
+.ed-in{display:block;width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:12px;background:rgba(255,255,255,.04);color:var(--text);font-size:16px;outline:none;-webkit-appearance:none;appearance:none}
+.ed-in::placeholder{color:var(--faint)}
+.ed-in:focus{border-color:rgba(var(--accent-rgb),.85);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.16)}
+.ed-name{font-weight:650}
+.ed-x{flex:none;display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04);color:var(--muted)}
+.ed-x .i{width:16px;height:16px}
+.ed-x[disabled]{opacity:.35;cursor:default}
+.ed-opt{display:grid;gap:6px}
+.ed-pr{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:6px}
+.ed-pr span{color:var(--faint);font-size:13px}
+@media (min-width:560px){.ed-opt{grid-template-columns:minmax(0,1fr) 230px;align-items:center}}
+.ed-add{margin:14px 0 0}
+.ed-save{margin-top:16px}
+.ed-status{min-height:1.5em}
+.ed-status.bad{color:#fecdd3}
+.ed-status.good{color:#86efac}
+
 /* ---------- Desktop ---------- */
 @media (min-width:640px){
   .sheet{left:50%;right:auto;bottom:24px;width:540px;max-height:calc(100vh - 48px);border-bottom:1px solid var(--line-strong);border-radius:28px;transform:translate(-50%,calc(100% + 60px))}
@@ -287,11 +352,14 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
 <body>
 <div class="bg" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div><div class="grain"></div></div>
 
-<button type="button" class="topbar" id="demoBar" hidden>
-  <span class="live"><span class="pulse" aria-hidden="true"></span><span>Live preview for</span><b id="barName">Your Clinic</b></span>
-  <span class="sep" aria-hidden="true">•</span>
-  <span class="msg">Add this to your Instagram Bio &amp; Website</span>
-</button>
+<div class="topbar" id="demoBar" hidden>
+  <button type="button" class="bar-open" id="barOpen">
+    <span class="live"><span class="pulse" aria-hidden="true"></span><span>Live preview for</span><b id="barName">Your Clinic</b></span>
+    <span class="sep" aria-hidden="true">•</span>
+    <span class="msg">Add this to your Instagram Bio &amp; Website</span>
+  </button>
+  <button type="button" class="bar-share" id="shareBtn" aria-label="Share this preview"><span data-icon="share"></span><span>Share</span></button>
+</div>
 
 <noscript><p>This instant quote calculator needs JavaScript. Please enable it to see your guide price.</p></noscript>
 
@@ -305,6 +373,17 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       </div>
       <span class="badge"><span class="bdot" aria-hidden="true"></span>Instant quote</span>
     </header>
+
+    <section class="card editor" id="editor" hidden aria-labelledby="edTitle">
+      <p class="eyebrow">Private link · keep it to yourself</p>
+      <h3 id="edTitle">Edit your menu &amp; prices</h3>
+      <p class="ed-sub">Change names, options and prices. Your page below updates as you type. Press Save when you’re happy. Your link stays the same.</p>
+      <p class="ed-cur" id="edCur"></p>
+      <div class="ed-list" id="edList"></div>
+      <div class="ed-add" id="edAdd"><label class="fld"><span id="edAddLbl">Add a treatment</span><select id="edAddSel"></select></label></div>
+      <button type="button" class="cta ed-save" id="edSave">Save changes</button>
+      <p class="fine ed-status" id="edStatus" role="status" aria-live="polite"></p>
+    </section>
 
     <section class="hero">
       <h2 class="headline"><span id="h1a">Your treatment,</span> <em id="h1b">priced in seconds.</em></h2>
@@ -356,6 +435,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
             <label class="fld"><span>Full name</span><input id="fName" type="text" autocomplete="name" maxlength="80" required></label>
             <label class="fld"><span>Phone</span><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" required></label>
             <label class="fld"><span>Email</span><input id="fEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" required></label>
+            <div class="fld" id="contactFld"><span>Best way to reach you <i>(optional)</i></span><div class="pills" id="contactPills" role="group" aria-label="Best way to reach you"></div></div>
             <div class="row2" id="dateRow">
               <label class="fld"><span id="dateLbl">Preferred date</span><input id="fDate" type="date"></label>
               <label class="fld" id="timeFld"><span>Preferred time</span>
@@ -381,6 +461,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
             <div class="done-ic" id="doneIc"></div>
             <h4 id="doneTitle"></h4>
             <p id="doneMsg"></p>
+            <div id="doneMail" hidden></div>
             <div class="recap" id="recap"></div>
             <a class="cta" id="mailBtn" href="#" hidden>Email My Request →</a>
             <button type="button" class="cta" id="doneActivate" hidden></button>
@@ -409,8 +490,10 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
           </div>
         </div>
         <p class="ig-cap">Your Instagram bio, upgraded</p>
+        <div id="pitchMail"></div>
+        <p class="mp-cap">Every request lands in your inbox like this</p>
         <button type="button" class="cta" id="pitchBtn"></button>
-        <p class="fine" id="pitchFine">One-off £197.99 · Secure Stripe checkout · Automatic delivery</p>
+        <p class="fine" id="pitchFine">Secure Stripe checkout · Automatic delivery</p>
       </div>
     </section>
 
@@ -437,7 +520,6 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       <li><div><b>Live 24/7</b><span id="howLive">Add the link to your Instagram bio and website. Consultation requests land in your inbox.</span></div></li>
     </ol>
     <ul class="tags" id="sheetTags"></ul>
-    <div class="price-tag"><span class="pt-amount" id="sheetPrice">£197.99</span><span class="pt-note">one-off payment<br>no monthly fees</span></div>
     <a class="cta" id="checkoutBtn" href="https://buy.stripe.com/cNi6oI9SZemEfVqcCVbAs02" target="_top" rel="noopener">Continue to Secure Checkout →</a>
     <p class="fine"><span data-icon="lock"></span><span id="sheetFine">Payments processed securely by Stripe. No calls, no setup.</span></p>
   </div>
@@ -462,11 +544,14 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
        demo      0 = Live Client Mode (anything else / absent = Prospect Demo Mode)
        webhook   Optional https:// override for the n8n lead-router webhook
        mult      Optional price multiplier override, 0.5 to 2
+       t         Optional menu: up to 8 treatment codes, e.g. t=aw.lf.le.ll (see DEFAULT_CODES and EXTRAS)
+       r         Outreach preview reference (demo only): logs a view, a try and a checkout click for follow-ups
+       id        Paid page id: loads the menu and prices the owner saved
+       edit      The owner's private token (with id): opens the price editor above a live preview
      ========================================================================== */
 
   // £197.99 one-off. Stripe Adaptive Pricing converts it to the buyer's local currency at checkout.
   var STRIPE_LINK = 'https://buy.stripe.com/cNi6oI9SZemEfVqcCVbAs02';
-  var PRICE_LABEL = '£197.99';
 
   // n8n lead router ("Clinic Leads & Stripe Delivery"). If it is unreachable or rejects a
   // request, the request is routed to the clinic by email (cemail) instead, so no lead is lost.
@@ -519,7 +604,17 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     profile: '<path d="M8.5 3.5c4 0 6.5 2.6 6.5 6l2.6 4.3-2.1.8V17a2 2 0 0 1-2 2H12v2.5"/><path d="M8.5 3.5A6 6 0 0 0 6 14.8v6.7"/>',
     figure: '<circle cx="12" cy="4.5" r="2"/><path d="M9 8.5h6l-1 4 2.5 8.5h-9L10 12.5z"/>',
     waist: '<path d="M7 3c0 5 3 6 3 9s-3 4-3 9M17 3c0 5-3 6-3 9s3 4 3 9"/>',
-    hair: '<path d="M5 13a7 7 0 0 1 14 0v2a7 7 0 0 1-14 0z"/><path d="M8 9.5L7 6.5M12 8V4.5M16 9.5l1-3M10 8.4l-.5-3M14 8.4l.5-3"/>'
+    hair: '<path d="M5 13a7 7 0 0 1 14 0v2a7 7 0 0 1-14 0z"/><path d="M8 9.5L7 6.5M12 8V4.5M16 9.5l1-3M10 8.4l-.5-3M14 8.4l.5-3"/>',
+    lash: '<path d="M3 11c2.6 3 5.6 4.5 9 4.5s6.4-1.5 9-4.5"/><path d="M5.5 13.6L4 16M9 15.1L8.4 18M12 15.5V18.5M15 15.1l.6 2.9M18.5 13.6L20 16"/>',
+    brow: '<path d="M3 14.5C5.5 10.5 9 8.5 13 8.5c3.2 0 6 1.2 8 3.5"/><path d="M3 14.5c3-2 6.5-3 10-3 3 0 5.6.5 8 1.5"/>',
+    hoop: '<circle cx="12" cy="13.5" r="6.5"/><circle cx="12" cy="7" r="1.6"/>',
+    ear: '<path d="M7 10a5 5 0 0 1 10 0c0 3-2.5 4-3 6.5-.4 2.2-1.6 4-3.8 4-1.6 0-2.7-1-3.2-2.3"/><path d="M10 10a2 2 0 0 1 4 0c0 1.5-1.5 2-1.5 3.5"/>',
+    cat: '<path d="M5 20v-8.5L4 4l4.5 3.5h7L20 4l-1 7.5V20z"/><path d="M9.5 12.5h.01M14.5 12.5h.01"/><path d="M11 15.5h2l-1 1z"/>',
+    van: '<path d="M2.5 16.5v-9A1.5 1.5 0 0 1 4 6h10l4.5 4.5h2a1 1 0 0 1 1 1v5"/><path d="M14 6v4.5h4.5"/><circle cx="7" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/><path d="M9 17.5h6"/>',
+    share: '<path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v6.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V12"/>',
+    chat: '<path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.6-4.3A8.5 8.5 0 1 1 20.5 11.5z"/>',
+    sms: '<path d="M4.5 4.5h15A1.5 1.5 0 0 1 21 6v9.5a1.5 1.5 0 0 1-1.5 1.5H10l-5 4v-4h-.5A1.5 1.5 0 0 1 3 15.5V6a1.5 1.5 0 0 1 1.5-1.5z"/><path d="M8 10.75h.01M12 10.75h.01M16 10.75h.01"/>',
+    phone: '<path d="M5.5 3.5h3l1.5 4.5-2 1.3a11 11 0 0 0 6.7 6.7l1.3-2 4.5 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 3.5 5.7a2 2 0 0 1 2-2.2z"/>'
   };
   function icon(name) {
     return '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (ICON_PATHS[name] || '') + '</svg>';
@@ -775,6 +870,91 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     Object.keys(d).forEach(function (f) { if (!n.hasOwnProperty(f)) n[f] = d[f]; });
   });
 
+  // Short codes for every treatment, so outreach links (?t=) and saved menus can match what a business offers
+  var MAX_MENU = 8;
+  var DEFAULT_CODES = {
+    aesthetics: ['aw', 'lf', 'pf', 'lh', 'mn', 'hf'],
+    tattoo: ['fl', 'bg', 'sl', 'fs', 'cu', 'pt'],
+    dentist: ['ia', 'cb', 'vn', 'wh', 'im', 'sm'],
+    cosmetic: ['rh', 'ba', 'lp', 'tt', 'eb', 'ht'],
+    wedding: ['wd', 'ss', 'pv', 'el', 'en', 'dw'],
+    florist: ['bq', 'bp', 'ar', 'tc', 'fw', 'ev'],
+    groomer: ['fg', 'bb', 'pi', 'hs', 'ds', 'nt']
+  };
+  // More services per niche (GBP, average UK city). "sizes" replaces the niche's option labels where they differ.
+  var EXTRAS = {
+    aesthetics: [
+      { c: 'le', name: 'Lash Extensions', icon: 'lash', sizes: ['Classic Full Set', 'Hybrid Full Set', 'Volume / Mega Volume'], prices: [[40, 60], [50, 70], [60, 90]] },
+      { c: 'll', name: 'Lash Lift & Tint (LVL)', icon: 'lash', sizes: ['Lash Lift', 'Lift & Tint', 'Lift, Tint & Brow Combo'], prices: [[35, 45], [40, 55], [60, 80]] },
+      { c: 'bl', name: 'Brow Lamination', icon: 'brow', sizes: ['Lamination', 'Lamination & Tint', 'Lamination, Tint & Shape'], prices: [[30, 40], [35, 45], [40, 55]] },
+      { c: 'mb', name: 'Semi-Permanent Brows', icon: 'pen', sizes: ['Colour Boost', 'Full Treatment', 'Full Treatment + Top-Up'], prices: [[120, 180], [200, 300], [260, 380]] },
+      { c: 'hx', name: 'Hair Extensions', icon: 'comb', sizes: ['Partial / Volume Boost', 'Full Head', 'Full Head, Premium Hair'], prices: [[150, 250], [250, 450], [400, 700]] },
+      { c: 'cp', name: 'Chemical Peel', icon: 'layers', sizes: ['Single Peel', 'Course of 3', 'Course of 6'], prices: [[70, 120], [180, 300], [330, 550]] },
+      { c: 'dp', name: 'Dermaplaning Facial', icon: 'sparkle', sizes: ['Express', 'Signature', 'Dermaplaning + Peel'], prices: [[35, 50], [45, 65], [70, 100]] },
+      { c: 'fd', name: 'Fat Dissolving', icon: 'syringe', sizes: ['Single Area', 'Two Areas', 'Course of 3'], prices: [[100, 180], [180, 300], [280, 450]] },
+      { c: 'pn', name: 'Polynucleotides', icon: 'drop', sizes: ['Single Session', 'Course of 3', 'Course of 4+'], prices: [[180, 250], [450, 650], [600, 850]] },
+      { c: 'st', name: 'Skin Tag & Mole Removal', icon: 'bolt', sizes: ['1-2 Tags', 'Up to 5', 'Up to 10'], prices: [[60, 90], [90, 140], [140, 200]] },
+      { c: 'tf', name: 'Tear Trough Filler', icon: 'eye', prices: [[250, 350], [300, 450], [450, 650]] }
+    ],
+    tattoo: [
+      { c: 'co', name: 'Colour Piece', icon: 'drop', prices: [[180, 320], [400, 600], [700, 1050]] },
+      { c: 'ls', name: 'Lettering & Script', icon: 'pen', prices: [[100, 220], [300, 450], [550, 850]] },
+      { c: 'td', name: 'Traditional / Neo-Trad', icon: 'heart', prices: [[150, 300], [380, 560], [650, 950]] },
+      { c: 'lr', name: 'Laser Tattoo Removal', icon: 'bolt', sizes: ['Small (up to 5cm)', 'Medium (palm size)', 'Large (sleeve section)'], prices: [[40, 70], [70, 120], [120, 220]] },
+      { c: 'pi', name: 'Piercing', icon: 'hoop', step: 'Choose your piercing', sizes: ['Ear / Nose', 'Navel / Eyebrow', 'Two Piercings'], prices: [[25, 40], [30, 45], [45, 70]] }
+    ],
+    dentist: [
+      { c: 'cr', name: 'Crowns', icon: 'tooth', prices: [[500, 900], [2200, 4500], [8000, 15000]] },
+      { c: 'ca', name: 'Clear Aligners (Other Brands)', icon: 'arch', prices: [[900, 1500], [1500, 2500], [2200, 3500]] },
+      { c: 'hy', name: 'Hygienist Visit', icon: 'sparkle', step: 'Choose your visit', sizes: ['Scale & Polish', 'Airflow Deep Clean', 'Periodontal Treatment'], prices: [[50, 80], [70, 110], [150, 350]] },
+      { c: 'rc', name: 'Root Canal', icon: 'tooth', sizes: ['Front Tooth', 'Premolar', 'Molar'], prices: [[350, 550], [450, 700], [600, 950]] },
+      { c: 'a4', name: 'Full-Arch Implants (All-on-4)', icon: 'implant', sizes: ['Single Arch', 'Single Arch, Premium', 'Both Arches'], prices: [[10000, 15000], [14000, 20000], [20000, 32000]] },
+      { c: 'dn', name: 'Dentures', icon: 'smile', sizes: ['Partial Denture', 'Full Upper or Lower', 'Full Upper & Lower'], prices: [[450, 900], [700, 1300], [1400, 2600]] }
+    ],
+    cosmetic: [
+      { c: 'fl', name: 'Facelift', icon: 'profile', prices: [[7000, 9500], [9000, 12500], [12000, 16000]], tr: [[3500, 4500], [4300, 5500], [5300, 7000]] },
+      { c: 'bt', name: 'Breast Lift / Reduction', icon: 'heart', prices: [[5500, 7000], [6500, 8500], [8000, 10500]], tr: [[2600, 3300], [3000, 3800], [3600, 4800]] },
+      { c: 'bb', name: 'BBL (Brazilian Butt Lift)', icon: 'figure', prices: [[6500, 8500], [8000, 10500], [10000, 13000]], tr: [[2800, 3600], [3300, 4200], [4000, 5200]] },
+      { c: 'mm', name: 'Mummy Makeover', icon: 'waist', prices: [[9000, 12000], [11000, 14500], [14000, 18000]], tr: [[4500, 5800], [5300, 6800], [6500, 8500]] },
+      { c: 'bh', name: 'Beard / Eyebrow Transplant', icon: 'hair', sizes: ['Eyebrows', 'Beard (Partial)', 'Full Beard'], prices: [[2500, 3800], [3000, 4500], [4000, 6000]], tr: [[1100, 1600], [1300, 1900], [1700, 2500]] },
+      { c: 'ot', name: 'Ear Pinning (Otoplasty)', icon: 'ear', prices: [[3000, 4000], [3800, 5000], [4500, 6000]], tr: [[1300, 1800], [1600, 2100], [1900, 2600]] }
+    ],
+    wedding: [
+      { c: 'vo', name: 'Wedding Videography', icon: 'video', prices: [[800, 1300], [1300, 2000], [2000, 3200]] },
+      { c: 'al', name: 'Wedding Album', icon: 'layers', sizes: ['20-Page Album', '30-Page Album', '40-Page Luxury Album'], prices: [[250, 400], [350, 550], [500, 850]] },
+      { c: 'bs', name: 'Bridal Prep & Getting Ready', icon: 'sparkle', sizes: ['1 Hour', '2 Hours', 'Full Morning'], prices: [[150, 250], [250, 400], [350, 550]] },
+      { c: 'pb', name: 'Photo Booth Hire', icon: 'camera', sizes: ['2 Hours', '3 Hours', '4 Hours + Guest Book'], prices: [[300, 450], [400, 550], [500, 750]] },
+      { c: 'dr', name: 'Drone Footage Add-On', icon: 'plane', sizes: ['Ceremony Only', 'Ceremony & Portraits', 'Full Day'], prices: [[150, 250], [250, 400], [350, 550]] }
+    ],
+    florist: [
+      { c: 'fu', name: 'Funeral Flowers & Tributes', icon: 'tulip', sizes: ['Posy or Spray', 'Wreath or Heart', 'Letters or Casket Spray'], prices: [[45, 90], [70, 150], [150, 350]] },
+      { c: 'cf', name: 'Corporate & Weekly Flowers', icon: 'table', sizes: ['Reception Desk', 'Office or Restaurant', 'Hotel or Venue'], prices: [[30, 60], [60, 150], [150, 400]] },
+      { c: 'fc', name: 'Flower Crowns & Corsages', icon: 'sparkle', prices: [[30, 50], [50, 90], [90, 160]] },
+      { c: 'bd', name: 'Birthday & Occasion Bouquets', icon: 'bouquet', sizes: ['Classic', 'Deluxe', 'Luxury'], prices: [[35, 50], [55, 80], [85, 150]] },
+      { c: 'df', name: 'Dried Flower Arrangements', icon: 'sun', prices: [[35, 60], [60, 110], [110, 200]] }
+    ],
+    groomer: [
+      { c: 'cg', name: 'Cat Groom', icon: 'cat', step: 'Choose your groom', sizes: ['Bath & Brush', 'Full Groom', 'Lion Cut / Shave Down'], prices: [[40, 55], [50, 70], [60, 85]] },
+      { c: 'mg', name: 'Mobile Groom (We Come to You)', icon: 'van', prices: [[45, 60], [55, 75], [75, 105]] },
+      { c: 'tc', name: 'Teeth Cleaning', icon: 'tooth', prices: [[15, 25], [15, 25], [20, 30]] },
+      { c: 'md', name: 'Medicated / Flea Bath', icon: 'bath', prices: [[30, 40], [35, 50], [45, 65]] },
+      { c: 'mc', name: 'Matted Coat Removal', icon: 'comb', prices: [[40, 55], [50, 70], [70, 100]] }
+    ]
+  };
+  // Heading used when a treatment's options replace the niche's own
+  var NICHE_MORE = {
+    aesthetics: 'Choose your package', tattoo: 'Choose your size', dentist: 'Choose your option', cosmetic: 'Choose your option',
+    wedding: 'Choose your package', florist: 'Choose your option', groomer: 'Choose your option'
+  };
+  Object.keys(NICHES).forEach(function (k) {
+    var n = NICHES[k];
+    n.optStep = NICHE_MORE[k];
+    n.lib = {};
+    n.treatments.forEach(function (t, i) { t.c = DEFAULT_CODES[k][i]; n.lib[t.c] = t; });
+    EXTRAS[k].forEach(function (t) { n.lib[t.c] = t; });
+    n.order = DEFAULT_CODES[k].concat(EXTRAS[k].map(function (t) { return t.c; }));
+  });
+
   var NICHE_ALIASES = {
     aesthetics: 'aesthetics', aesthetic: 'aesthetics', aesthetician: 'aesthetics', clinic: 'aesthetics', beauty: 'aesthetics', skin: 'aesthetics', skincare: 'aesthetics', medspa: 'aesthetics', medicalspa: 'aesthetics', injector: 'aesthetics', cosmetics: 'aesthetics',
     tattoo: 'tattoo', tattoos: 'tattoo', tattooist: 'tattoo', tattoostudio: 'tattoo', studio: 'tattoo', ink: 'tattoo',
@@ -900,6 +1080,18 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   var nicheKey = NICHE_ALIASES[param('niche').toLowerCase().replace(/[^a-z]/g, '')] || 'aesthetics';
   var N = NICHES[nicheKey];
 
+  // Menu: ?t= lists treatment codes (any separator, or none: "awlfle"); otherwise the niche's six defaults
+  var menuCodes = [];
+  param('t').toLowerCase().split(/[^a-z0-9]+/).forEach(function (tok) {
+    for (var i = 0; i + 1 < tok.length; i += 2) {
+      var c = tok.slice(i, i + 2);
+      if (N.lib.hasOwnProperty(c) && menuCodes.indexOf(c) === -1 && menuCodes.length < MAX_MENU) menuCodes.push(c);
+    }
+  });
+  var customMenu = menuCodes.length > 0;
+  if (!customMenu) menuCodes = DEFAULT_CODES[nicheKey].slice();
+  var T = menuCodes.map(function (c) { return N.lib[c]; });
+
   var nameParam = clean(param('name'), 60);
   var clinicName = nameParam || N.defaultName;
 
@@ -969,6 +1161,18 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
 
   var isDemo = !/^(0|false|no|off|live)$/i.test(param('demo').trim());
 
+  // Paid pages: ?id= loads the menu and prices the owner saved; ?edit= (their private link) opens the editor
+  var CONFIG_URL = 'https://uk-trade-engine.app.n8n.cloud/webhook/clinic-config';
+  var clinicId = param('id').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 32);
+  var editToken = param('edit').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
+  var isEdit = !!(clinicId && editToken);
+  if (isEdit) isDemo = false;
+
+  // Outreach previews: ?r= is the lead's reference, used to log views, tries and checkout clicks
+  var EVENT_URL = 'https://uk-trade-engine.app.n8n.cloud/webhook/demo-event';
+  var REF = isDemo ? param('r').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) : '';
+  if (REF.length < 6) REF = '';
+
   var webhookParam = param('webhook').trim();
   var LEAD_WEBHOOK = /^https:\/\/[^\s"'<>]+$/i.test(webhookParam) ? webhookParam : DEFAULT_LEAD_WEBHOOK;
 
@@ -977,14 +1181,66 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     var step = v < 20 ? 1 : v < 1000 ? 5 : v < 10000 ? 50 : 100;
     return Math.max(step, Math.round(v / step) * step);
   }
-  function priceFor(t, s) {
-    var tr = N.treatments[t], r = tr.prices[s];
+  // Prices the owner saved are final prices in their currency (cfgRate converts them for Turkish pages)
+  var cfgRate = 1;
+  function priceOf(tr, s) {
+    if (tr.fixed) {
+      var f = tr.fixed[s];
+      var flo = cfgRate === 1 ? Math.round(f[0]) : roundNice(f[0] * cfgRate);
+      var fhi = cfgRate === 1 ? Math.round(f[1]) : roundNice(f[1] * cfgRate);
+      return [flo, Math.max(flo, fhi)];
+    }
+    var r = tr.prices[s];
     if (country === 'tr') r = tr.tr ? tr.tr[s] : [r[0] * N.trLevel, r[1] * N.trLevel];
     var m = cityMult * CUR.level;
     var lo = roundNice(r[0] * m);
     var hi = roundNice(r[1] * m);
     if (hi <= lo) hi = roundNice(lo * 1.15);
     return [lo, hi];
+  }
+  function priceFor(t, s) { return priceOf(T[t], s); }
+  function optsFor(t) { var tr = T[t]; return tr && tr.sizes ? tr.sizes : N.sizes; }
+  function stepFor(tr) {
+    var b = tr && (N.lib[tr.c] || tr);
+    if (!b) return N.stepSize;
+    return b.step || (b.sizes ? N.optStep : N.stepSize);
+  }
+  function fromPrice(t) {
+    var lo = Infinity;
+    for (var s = 0; s < optsFor(t).length; s++) lo = Math.min(lo, priceFor(t, s)[0]);
+    return lo;
+  }
+  function fmtRange(lo, hi, sep) { return lo === hi ? fmt(lo) : fmt(lo) + (sep || ' – ') + fmt(hi); }
+
+  // One saved menu item -> a treatment. Options without a price are hidden.
+  function itemFromConfig(it) {
+    if (!it || typeof it !== 'object' || !Array.isArray(it.p)) return null;
+    var c = String(it.c || '').toLowerCase();
+    var base = N.lib.hasOwnProperty(c) ? N.lib[c] : null;
+    if (!base && !/^z[1-9]$/.test(c)) return null;
+    var name = clean(it.n || (base && base.name) || '', 60);
+    if (name.length < 2) return null;
+    var baseOpts = base && base.sizes ? base.sizes : N.sizes, labels = [], fixed = [];
+    for (var k = 0; k < 3; k++) {
+      var p = it.p[k];
+      if (!Array.isArray(p)) continue;
+      var lo = Math.round(+p[0]), hi = Math.round(+p[1]);
+      if (!(lo > 0) || lo > 1e6) continue;
+      if (!(hi >= lo) || hi > 1e6) hi = lo;
+      labels.push(clean((Array.isArray(it.o) && it.o[k]) || baseOpts[k] || 'Option ' + (k + 1), 48));
+      fixed.push([lo, hi]);
+    }
+    if (!fixed.length) return null;
+    return { c: c, name: name, icon: base ? base.icon : 'sparkle', sizes: labels, fixed: fixed };
+  }
+  function applyConfig(cfg) {
+    if (!cfg || typeof cfg !== 'object' || !Array.isArray(cfg.items)) return false;
+    var items = cfg.items.slice(0, MAX_MENU).map(itemFromConfig).filter(Boolean);
+    if (!items.length) return false;
+    var from = String(cfg.cur || '').toUpperCase();
+    cfgRate = from === CUR.code || !FX_FROM_GBP[from] || !FX_FROM_GBP[CUR.code] ? 1 : FX_FROM_GBP[CUR.code] / FX_FROM_GBP[from];
+    T = items;
+    return true;
   }
 
   /* ---------- Stripe checkout link ---------- */
@@ -999,12 +1255,19 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
   function stripeReference() {
-    var n = nameParam, c = cityName, e = cemail;
-    function make() { return toBase64Url(JSON.stringify([n, c, nicheKey, cityMult, e, country])); }
+    // [name, city, niche, cityMult, email, country] + [menu codes, outreach ref] when this preview has them
+    var n = nameParam, c = cityName, e = cemail, m = customMenu ? menuCodes.join('.') : '';
+    function make() {
+      var a = [n, c, nicheKey, cityMult, e, country];
+      if (m || REF) a.push(m);
+      if (REF) a.push(REF);
+      return toBase64Url(JSON.stringify(a));
+    }
     var ref = make();
     // Stripe ignores client_reference_id values over 200 characters, so trim long names / cities first
     while (ref.length > 200 && n.length > 12) { n = n.slice(0, -3).trim(); ref = make(); }
     while (ref.length > 200 && c.length > 4) { c = c.slice(0, -2).trim(); ref = make(); }
+    if (ref.length > 200) { m = ''; ref = make(); }
     if (ref.length > 200) { e = ''; ref = make(); }
     return ref;
   }
@@ -1055,7 +1318,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   var done = $('done'), mailBtn = $('mailBtn'), doneActivate = $('doneActivate');
   var pitchEl = $('pitch'), dock = $('dock'), dockBtn = $('dockBtn');
   var sheetWrap = $('sheet'), sheetPanel = $('sheetPanel'), checkoutBtn = $('checkoutBtn');
-  var toastEl = $('toast');
+  var toastEl = $('toast'), priceEl = resBody.querySelector('.price');
 
   var state = { t: -1, s: 1, formOpen: false, sent: false };
   var busy = false, sheetOpen = false, sheetTimer = null, lastFocus = null, autoSheetShown = false;
@@ -1072,12 +1335,12 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   root.setAttribute('data-mode', isDemo ? 'demo' : 'live');
   root.lang = CUR.locale;
 
-  document.title = isDemo ? clinicName + ' · Instant Quote Preview' : clinicName + ' · Instant ' + N.label + ' Quote';
+  document.title = isEdit ? 'Edit prices · ' + clinicName : isDemo ? clinicName + ' · Instant Quote Preview' : clinicName + ' · Instant ' + N.label + ' Quote';
   var metaDesc = 'Get an instant ' + (cityName ? cityName + ' ' : '') + 'guide price from ' + clinicName + ' and ' + N.metaAsk + ' in seconds.';
   var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', metaDesc);
   var ogt = document.querySelector('meta[property="og:title"]'); if (ogt) ogt.setAttribute('content', clinicName + ' · Instant ' + N.label + ' Quote');
   var ogd = document.querySelector('meta[property="og:description"]'); if (ogd) ogd.setAttribute('content', metaDesc);
-  if (isDemo) {
+  if (isDemo || isEdit) {
     var robots = document.createElement('meta');
     robots.name = 'robots';
     robots.content = 'noindex, nofollow';
@@ -1129,21 +1392,28 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     : '© ' + year + ' ' + clinicName + '. Prices shown are guide estimates for ' + cityLabel + ' and are ' + N.confirmAt + '.');
 
   /* ---------- Treatments + sizes ---------- */
-  N.treatments.forEach(function (t, i) {
-    var b = make('button', 'opt');
-    b.type = 'button';
-    b.setAttribute('data-i', String(i));
-    b.setAttribute('aria-pressed', 'false');
-    var ic = make('span', 'opt-ic'); ic.appendChild(iconEl(t.icon));
-    var from = make('span', 'opt-from', 'from ');
-    from.appendChild(make('b', null, fmt(priceFor(i, 0)[0])));
-    var ckEl = make('span', 'opt-ck'); ckEl.appendChild(iconEl('check'));
-    b.appendChild(ic);
-    b.appendChild(make('span', 'opt-name', t.name));
-    b.appendChild(from);
-    b.appendChild(ckEl);
-    treatEl.appendChild(b);
-  });
+  function renderMenu() {
+    treatEl.textContent = '';
+    T.forEach(function (t, i) {
+      var b = make('button', 'opt');
+      b.type = 'button';
+      b.setAttribute('data-i', String(i));
+      b.setAttribute('aria-pressed', 'false');
+      var ic = make('span', 'opt-ic'); ic.appendChild(iconEl(t.icon));
+      var single = optsFor(i).length === 1 && priceFor(i, 0)[0] === priceFor(i, 0)[1];
+      var from = make('span', 'opt-from', single ? '' : 'from ');
+      from.appendChild(make('b', null, fmt(fromPrice(i))));
+      var ckEl = make('span', 'opt-ck'); ckEl.appendChild(iconEl('check'));
+      b.appendChild(ic);
+      b.appendChild(make('span', 'opt-name', t.name));
+      b.appendChild(from);
+      b.appendChild(ckEl);
+      treatEl.appendChild(b);
+    });
+    if (state.t >= T.length) state.t = -1;
+    if (state.t >= 0 && state.s >= optsFor(state.t).length) state.s = optsFor(state.t).length - 1;
+  }
+  renderMenu();
   N.sizes.forEach(function (label, i) {
     var b = make('button', 'size');
     b.type = 'button';
@@ -1179,32 +1449,42 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       opts[i].classList.toggle('on', i === state.t);
       opts[i].setAttribute('aria-pressed', i === state.t ? 'true' : 'false');
     }
+    var labels = has ? optsFor(state.t) : N.sizes;
     for (i = 0; i < sizes.length; i++) {
+      sizes[i].hidden = i >= labels.length;
+      sizes[i].querySelector('.size-l').textContent = labels[i] || '';
       sizes[i].classList.toggle('on', i === state.s);
       sizes[i].setAttribute('aria-pressed', i === state.s ? 'true' : 'false');
-      var r = has ? priceFor(state.t, i) : null;
-      sizes[i].querySelector('.size-p').textContent = r ? fmt(r[0]) + '–' + fmt(r[1]) : '';
+      var r = has && i < labels.length ? priceFor(state.t, i) : null;
+      sizes[i].querySelector('.size-p').textContent = r ? fmtRange(r[0], r[1], '–') : '';
     }
+    setText('t2', has ? stepFor(T[state.t]) : N.stepSize);
     resEmpty.hidden = has;
     resBody.hidden = !has;
     bookBtn.classList.toggle('idle', !has);
     if (has) {
-      var t = N.treatments[state.t], size = N.sizes[state.s], pr = priceFor(state.t, state.s);
+      var t = T[state.t], size = labels[state.s], pr = priceFor(state.t, state.s);
       setText('resName', t.name);
       setText('resSize', size);
+      priceEl.classList.toggle('single', pr[0] === pr[1]);
       animatePrice(pr[0], pr[1], animate);
-      setText('srPrice', 'Estimate for ' + t.name + ', ' + size + ': ' + fmt(pr[0]) + ' to ' + fmt(pr[1]) + '.');
+      setText('srPrice', 'Estimate for ' + t.name + ', ' + size + ': ' + (pr[0] === pr[1] ? fmt(pr[0]) : fmt(pr[0]) + ' to ' + fmt(pr[1])) + '.');
       setText('dockName', t.name + ' · ' + size);
-      setText('dockPrice', fmt(pr[0]) + ' – ' + fmt(pr[1]));
+      setText('dockPrice', fmtRange(pr[0], pr[1]));
       setText('sumTxt', t.name + ' · ' + size);
-      setText('sumPrice', fmt(pr[0]) + ' – ' + fmt(pr[1]));
+      setText('sumPrice', fmtRange(pr[0], pr[1]));
       if (animate) { resBody.classList.remove('pop'); void resBody.offsetWidth; resBody.classList.add('pop'); }
     }
     updateDock();
   }
 
   function select(kind, idx) {
-    if (kind === 't') state.t = idx; else state.s = idx;
+    if (kind === 't') {
+      state.t = idx;
+      var nOpts = optsFor(idx).length;
+      if (state.s >= nOpts) state.s = Math.min(1, nOpts - 1);
+      track('try');
+    } else state.s = idx;
     if (state.sent) {
       state.sent = false;
       done.hidden = true;
@@ -1222,6 +1502,78 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     var b = e.target.closest ? e.target.closest('.size') : null;
     if (b) select('s', +b.getAttribute('data-i'));
   });
+
+  /* ---------- Outreach preview tracking (?r=) ---------- */
+  // Only view / try / checkout, once per browser per day: every beacon is an n8n execution
+  var tracked = {};
+  function track(e) {
+    if (!REF || tracked[e]) return;
+    tracked[e] = 1;
+    var key = 'iqe:' + REF + ':' + e;
+    try {
+      var last = +window.localStorage.getItem(key) || 0;
+      if (Date.now() - last < 24 * 60 * 60 * 1000) return;
+      window.localStorage.setItem(key, String(Date.now()));
+    } catch (x) { /* storage blocked: send once per page load */ }
+    var url = EVENT_URL + '?e=' + e + '&r=' + REF + '&niche=' + nicheKey + '&cc=' + country;
+    try { if (navigator.sendBeacon && navigator.sendBeacon(url)) return; } catch (x) { /* fall through */ }
+    try { fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true, credentials: 'omit' }).catch(function () {}); } catch (x) { /* ignore */ }
+  }
+
+  /* ---------- Best way to reach you ---------- */
+  var contactPref = '';
+  var pillsEl = $('contactPills');
+  ((country === 'us' || country === 'ca')
+    ? [['Text message', 'sms', 'Text'], ['Phone call', 'phone', 'Call'], ['Email', 'mail', 'Email'], ['WhatsApp', 'chat', 'WhatsApp']]
+    : [['WhatsApp', 'chat', 'WhatsApp'], ['Phone call', 'phone', 'Call'], ['Text message', 'sms', 'Text'], ['Email', 'mail', 'Email']]
+  ).forEach(function (c) {
+    var b = make('button', 'pill');
+    b.type = 'button';
+    b.setAttribute('data-v', c[0]);
+    b.setAttribute('aria-pressed', 'false');
+    b.appendChild(iconEl(c[1]));
+    b.appendChild(make('span', null, c[2]));
+    pillsEl.appendChild(b);
+  });
+  pillsEl.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.pill') : null;
+    if (!b) return;
+    var v = b.getAttribute('data-v');
+    contactPref = contactPref === v ? '' : v;
+    Array.prototype.forEach.call(pillsEl.children, function (p) { p.setAttribute('aria-pressed', p.getAttribute('data-v') === contactPref ? 'true' : 'false'); });
+  });
+
+  /* ---------- The email the business receives (demo + editor previews) ---------- */
+  function mailPreview(d) {
+    var w = make('div', 'mailprev');
+    var bar = make('div', 'mp-bar');
+    bar.appendChild(iconEl('mail'));
+    bar.appendChild(make('span', null, 'Inbox'));
+    bar.appendChild(make('em', null, 'just now'));
+    w.appendChild(bar);
+    var body = make('div', 'mp-body');
+    var from = make('div', 'mp-from');
+    from.appendChild(make('b', null, 'New ' + N.subjectPrefix.toLowerCase()));
+    from.appendChild(make('span', null, 'to ' + (cemail || 'you')));
+    body.appendChild(from);
+    body.appendChild(make('div', 'mp-subj', d.name + ' would like to book: ' + d.treatment));
+    var rows = make('div', 'mp-rows');
+    [['Phone', d.phone], [N.noun.charAt(0).toUpperCase() + N.noun.slice(1), d.treatment], ['Option', d.option], ['Guide price', d.price], ['Best way to reach', d.contact]].forEach(function (r) {
+      if (!r[1]) return;
+      var row = make('div');
+      row.appendChild(make('span', null, r[0]));
+      row.appendChild(make('b', null, r[1]));
+      rows.appendChild(row);
+    });
+    body.appendChild(rows);
+    var acts = make('div', 'mp-acts'), first = d.name.split(' ')[0];
+    function chip(cls, ic, txt) { var s = make('span', 'mp-chip' + (cls ? ' ' + cls : '')); s.appendChild(iconEl(ic)); s.appendChild(make('span', null, txt)); acts.appendChild(s); }
+    if (d.contact !== 'Email') chip('wa', 'chat', 'WhatsApp ' + first);
+    chip('', 'phone', 'Call ' + first);
+    body.appendChild(acts);
+    w.appendChild(body);
+    return w;
+  }
 
   /* ---------- Toast + scrolling ---------- */
   function toast(msg) {
@@ -1281,7 +1633,8 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       time: $('fTime').value || '',
       notes: String($('fNotes').value || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim().slice(0, 1000),
       age: N.ageGate ? $('fAge').checked : null,
-      consent: $('fConsent').checked
+      consent: $('fConsent').checked,
+      contact: contactPref
     };
     var digits = v.phone.replace(/\D/g, '').length;
     var bad = [];
@@ -1302,16 +1655,18 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   }
 
   function buildPayload(v) {
-    var t = N.treatments[state.t], pr = priceFor(state.t, state.s);
+    var t = T[state.t], pr = priceFor(state.t, state.s);
     var pref = [v.date ? prettyDate(v.date) : '', v.time].filter(Boolean).join(', ');
-    var notes = [pref ? N.dateNote + ': ' + pref : '', v.notes].filter(Boolean).join('\n');
+    var notes = [pref ? N.dateNote + ': ' + pref : '', v.contact ? 'Best way to reach me: ' + v.contact : '', v.notes].filter(Boolean).join('\n');
     return {
       clinic: { name: clinicName, city: cityName, niche: nicheKey, email: cemail },
-      client: { name: v.name, phone: v.phone, email: v.email, notes: notes },
-      estimate: { treatment: t.name, size: N.sizes[state.s], low: pr[0], high: pr[1], currency: CUR.code },
+      client: { name: v.name, phone: v.phone, email: v.email, notes: notes, preferred_contact: v.contact },
+      estimate: { treatment: t.name, size: optsFor(state.t)[state.s], low: pr[0], high: pr[1], currency: CUR.code },
       meta: {
         preferred_date: v.date,
         preferred_time: v.time,
+        preferred_contact: v.contact,
+        country: country,
         age_confirmed: N.ageGate ? true : null,
         consent: true,
         submitted_at: new Date().toISOString(),
@@ -1329,7 +1684,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       '',
       N.noun.charAt(0).toUpperCase() + N.noun.slice(1) + ': ' + p.estimate.treatment,
       'Option: ' + p.estimate.size,
-      'Guide estimate: ' + fmt(p.estimate.low) + ' – ' + fmt(p.estimate.high),
+      'Guide estimate: ' + fmtRange(p.estimate.low, p.estimate.high),
       '',
       'Name: ' + p.client.name,
       'Phone: ' + p.client.phone,
@@ -1370,7 +1725,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   }
 
   function showDone(kind, v, payload) {
-    var t = N.treatments[state.t], pr = priceFor(state.t, state.s);
+    var t = T[state.t], pr = priceFor(state.t, state.s), optLabel = optsFor(state.t)[state.s];
     var first = v && v.name ? v.name.split(' ')[0] : '';
     state.sent = true;
     state.formOpen = false;
@@ -1380,9 +1735,12 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     doneActivate.hidden = true;
     $('doneIc').innerHTML = icon(kind === 'mail' || kind === 'mail-auto' ? 'mail' : 'check');
 
-    if (kind === 'demo') {
+    if (kind === 'demo' && isEdit) {
+      setText('doneTitle', 'Preview only');
+      setText('doneMsg', 'Nothing was sent from this editing link. On your live page, ' + N.leads + ' arrive at ' + (cemail || 'your inbox') + ' straight away, like this:');
+    } else if (kind === 'demo') {
       setText('doneTitle', 'That’s a new lead.');
-      setText('doneMsg', 'In live mode, ' + clinicName + ' gets this request instantly' + (cemail ? ' at ' + cemail : ' by email') + ', with the ' + N.client + '’s name, number, ' + N.noun + ' and budget range.');
+      setText('doneMsg', 'In live mode, ' + clinicName + ' gets this request instantly' + (cemail ? ' at ' + cemail : ' by email') + ', with the ' + N.client + '’s name, number, ' + N.noun + ' and budget range. Here’s the email:');
       doneActivate.textContent = 'Activate for ' + clinicName + ' →';
       doneActivate.hidden = false;
     } else if (kind === 'mail-auto') {
@@ -1400,11 +1758,18 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       setText('doneMsg', 'Thank you' + (first ? ', ' + first : '') + '. ' + clinicName + ' has your request and ' + N.doneLine);
     }
 
-    var recap = $('recap');
+    var recap = $('recap'), doneMail = $('doneMail'), showMail = kind === 'demo' && !!v;
     recap.textContent = '';
-    recap.appendChild(recapRow(N.noun.charAt(0).toUpperCase() + N.noun.slice(1), t.name));
-    recap.appendChild(recapRow('Option', N.sizes[state.s]));
-    recap.appendChild(recapRow('Guide estimate', fmt(pr[0]) + ' – ' + fmt(pr[1])));
+    doneMail.textContent = '';
+    recap.hidden = showMail;
+    doneMail.hidden = !showMail;
+    if (showMail) {
+      doneMail.appendChild(mailPreview({ name: v.name, phone: v.phone, treatment: t.name, option: optLabel, price: fmtRange(pr[0], pr[1]), contact: v.contact }));
+    } else {
+      recap.appendChild(recapRow(N.noun.charAt(0).toUpperCase() + N.noun.slice(1), t.name));
+      recap.appendChild(recapRow('Option', optLabel));
+      recap.appendChild(recapRow('Guide estimate', fmtRange(pr[0], pr[1])));
+    }
 
     done.hidden = false;
     side.classList.add('static');
@@ -1414,7 +1779,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       try { done.focus({ preventScroll: true }); } catch (e) { done.focus(); }
     }, 30);
 
-    if (kind === 'demo' && !autoSheetShown) {
+    if (kind === 'demo' && isDemo && !autoSheetShown) {
       autoSheetShown = true;
       setTimeout(function () { if (!sheetOpen && state.sent) openSheet(); }, 1800);
     }
@@ -1437,7 +1802,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     if (!v) return;
     var payload = buildPayload(v);
 
-    if (isDemo) {
+    if (isDemo || isEdit) {
       setBusy(true);
       setTimeout(function () { setBusy(false); showDone('demo', v, payload); }, 900);
       return;
@@ -1539,7 +1904,8 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       'Pre-qualified leads: every request includes the ' + N.noun + ', option and budget range.',
       'Delivered to ' + (cemail || 'your inbox') + ' the moment it’s sent, day or night.',
       'One link for your Instagram & TikTok bio, Google profile and website.',
-      'Branded for ' + clinicName + ' with ' + cityLabel + ' pricing in ' + curLabel + '.'
+      'Branded for ' + clinicName + ' with ' + cityLabel + ' pricing in ' + curLabel + '.',
+      'Change your ' + N.noun + 's and prices any time from a private link. No logins, no calls.'
     ].forEach(function (txt) {
       var li = make('li');
       li.appendChild(iconEl('check'));
@@ -1551,6 +1917,16 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     setText('igHandle', '@' + (handle || 'yourclinic'));
     setText('igBio', N.business + (cityName ? ' · ' + cityName : ''));
     setText('pitchBtn', 'Activate for ' + clinicName + ' →');
+
+    // A sample of the email the business gets, using its own top treatment
+    var SAMPLE_PHONE = { uk: '07700 900123', us: '(555) 010-0123', ca: '(555) 010-0123', ie: '085 555 0123', au: '0491 570 156', nz: '021 555 0123', tr: '+44 7700 900123' };
+    var sp = priceFor(0, Math.min(1, optsFor(0).length - 1));
+    $('pitchMail').appendChild(mailPreview({
+      name: 'Sophie Taylor', phone: SAMPLE_PHONE[country] || SAMPLE_PHONE.uk, treatment: T[0].name,
+      option: optsFor(0)[Math.min(1, optsFor(0).length - 1)], price: fmtRange(sp[0], sp[1]),
+      contact: country === 'us' || country === 'ca' ? 'Text message' : 'WhatsApp'
+    }));
+
 
     setText('sheetTitle', clinicName + '’s 24/7 Booking Funnel');
     setText('sheetSub', 'An instant-quote page that turns Instagram views into ' + N.leads + ', even while you sleep.');
@@ -1568,15 +1944,16 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       tags.appendChild(li);
     });
     checkoutBtn.href = checkoutUrl();
-    setText('sheetPrice', PRICE_LABEL);
-    setText('pitchFine', 'One-off ' + PRICE_LABEL + (CUR.visitor ? ' (shown in your local currency at checkout)' : country !== 'uk' ? ' (charged in ' + CUR.name + ' at checkout)' : '') + ' · Secure Stripe checkout · Automatic delivery');
+    // The price itself only appears on the Stripe checkout page
+    setText('pitchFine', 'Secure Stripe checkout' + (CUR.visitor ? ' in your local currency' : country !== 'uk' ? ' in ' + CUR.name : '') + ' · Automatic delivery');
     setText('sheetFine', CUR.visitor
-      ? 'Secure checkout by Stripe. You will see the exact price in your local currency before you pay. No calls, no setup.'
+      ? 'Secure checkout by Stripe. You’ll see the price in your local currency before you pay. No calls, no setup.'
       : country !== 'uk'
-      ? 'Secure checkout by Stripe. You will see the exact price in ' + CUR.name + ' before you pay. No calls, no setup.'
-      : 'Secure checkout by Stripe. Outside the UK, checkout shows the exact price in your local currency. No calls, no setup.');
+      ? 'Secure checkout by Stripe. You’ll see the price in ' + CUR.name + ' before you pay. No calls, no setup.'
+      : 'Secure checkout by Stripe. You’ll see the price before you pay. No calls, no setup.');
 
-    demoBar.addEventListener('click', openSheet);
+    $('barOpen').addEventListener('click', openSheet);
+    $('shareBtn').addEventListener('click', sharePreview);
     $('pitchBtn').addEventListener('click', openSheet);
     doneActivate.addEventListener('click', openSheet);
     sheetWrap.addEventListener('click', function (e) {
@@ -1612,11 +1989,257 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       if (dy > 90) closeSheet();
       y0 = null; dy = 0;
     });
-    checkoutBtn.addEventListener('click', function () { checkoutBtn.href = checkoutUrl(); });
+    checkoutBtn.addEventListener('click', function () { checkoutBtn.href = checkoutUrl(); track('checkout'); });
+    track('view');
+  }
+
+  /* ---------- Share the preview (demo bar) ---------- */
+  function copyText(txt, done) {
+    function legacy() {
+      var ta = make('textarea');
+      ta.value = txt;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { done(true); }, legacy);
+    else legacy();
+  }
+  function sharePreview() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: clinicName + ' · Instant quote preview', text: 'Instant quote page preview for ' + clinicName, url: url }).catch(function () {});
+      return;
+    }
+    copyText(url, function (ok) {
+      toast(ok ? 'Link copied. Send it to whoever runs your Instagram.' : 'Copy the link from your address bar to share it.');
+    });
+  }
+
+  /* ---------- Saved menu + prices (?id=) ---------- */
+  var CACHE_MS = 10 * 60 * 1000;
+  function loadConfig(timeoutMs, cb) {
+    var key = 'iqc:' + clinicId, finished = false;
+    function finish(cfg, ok) { if (finished) return; finished = true; cb(cfg, ok); }
+    if (!isEdit) {
+      try {
+        var cached = JSON.parse(window.localStorage.getItem(key) || 'null');
+        if (cached && cached.t > Date.now() - CACHE_MS) { finish(cached.c, true); return; }
+      } catch (e) { /* storage blocked: fetch instead */ }
+    }
+    setTimeout(function () { finish(null, false); }, timeoutMs);
+    if (typeof fetch !== 'function') { finish(null, false); return; }
+    fetch(CONFIG_URL + '?id=' + encodeURIComponent(clinicId), { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' })
+      .then(function (res) { if (!res.ok) throw new Error('config ' + res.status); return res.json(); })
+      .then(function (j) {
+        var cfg = j && j.config && typeof j.config === 'object' ? j.config : null;
+        if (!isEdit) { try { window.localStorage.setItem(key, JSON.stringify({ t: Date.now(), c: cfg })); } catch (e) { /* ignore */ } }
+        finish(cfg, true);
+      })
+      .catch(function () { finish(null, false); });
+  }
+
+  /* ---------- Owner price editor (?id=…&edit=…) ---------- */
+  function startEditor(loadedOk) {
+    var ed = $('editor'), list = $('edList'), addSel = $('edAddSel'), statusEl = $('edStatus'), saveBtn = $('edSave');
+    var dirty = false, previewTimer = null;
+    function num(v) { var n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.]/g, '')); return isFinite(n) && n > 0 ? Math.round(n) : 0; }
+    function setStatus(msg, cls) { statusEl.textContent = msg; statusEl.className = 'fine ed-status' + (cls ? ' ' + cls : ''); }
+    function opt(v, label) { var o = make('option', null, label); o.value = v; return o; }
+
+    // Start from what the page shows now (the saved menu, or the suggested one)
+    var rows = T.map(function (tr, i) {
+      var o = optsFor(i), r = { c: tr.c, n: tr.name, o: [], p: [] };
+      for (var s = 0; s < 3; s++) { r.o.push(o[s] || ''); r.p.push(s < o.length ? priceFor(i, s) : [0, 0]); }
+      return r;
+    });
+
+    function field(cls, val, k, i, s, ph, label) {
+      var el = make('input', 'ed-in' + (cls ? ' ' + cls : ''));
+      el.type = 'text';
+      el.value = val;
+      el.placeholder = ph;
+      el.setAttribute('aria-label', label);
+      el.setAttribute('data-k', k);
+      el.setAttribute('data-i', String(i));
+      if (s != null) el.setAttribute('data-s', String(s));
+      return el;
+    }
+    function render() {
+      list.textContent = '';
+      rows.forEach(function (r, i) {
+        var item = make('div', 'ed-item'), top = make('div', 'ed-top');
+        var nm = field('ed-name', r.n, 'n', i, null, N.noun.charAt(0).toUpperCase() + N.noun.slice(1) + ' name', 'Name');
+        nm.maxLength = 60;
+        top.appendChild(nm);
+        var x = make('button', 'ed-x');
+        x.type = 'button';
+        x.setAttribute('data-rm', String(i));
+        x.setAttribute('aria-label', 'Remove ' + (r.n || 'this ' + N.noun));
+        x.disabled = rows.length <= 1;
+        x.appendChild(iconEl('x'));
+        top.appendChild(x);
+        item.appendChild(top);
+        for (var s = 0; s < 3; s++) {
+          var line = make('div', 'ed-opt'), pr = make('div', 'ed-pr');
+          var ol = field('ed-ol', r.o[s], 'o', i, s, 'Option ' + (s + 1), 'Option ' + (s + 1) + ' name');
+          ol.maxLength = 48;
+          var lo = field('', r.p[s][0] ? String(r.p[s][0]) : '', 'lo', i, s, CUR.sym + ' from', 'Option ' + (s + 1) + ' price from');
+          var hi = field('', r.p[s][1] ? String(r.p[s][1]) : '', 'hi', i, s, CUR.sym + ' to', 'Option ' + (s + 1) + ' price to');
+          lo.inputMode = hi.inputMode = 'numeric';
+          lo.maxLength = hi.maxLength = 8;
+          pr.appendChild(lo); pr.appendChild(make('span', null, 'to')); pr.appendChild(hi);
+          line.appendChild(ol); line.appendChild(pr);
+          item.appendChild(line);
+        }
+        list.appendChild(item);
+      });
+      addSel.textContent = '';
+      addSel.appendChild(opt('', 'Choose…'));
+      var used = rows.map(function (r) { return r.c; });
+      N.order.forEach(function (c) { if (used.indexOf(c) === -1) addSel.appendChild(opt(c, N.lib[c].name)); });
+      addSel.appendChild(opt('z', 'Something else (type your own)'));
+      $('edAdd').hidden = rows.length >= MAX_MENU;
+    }
+    function toConfig() {
+      return {
+        v: 1,
+        cur: CUR.code,
+        items: rows.map(function (r) {
+          return {
+            c: r.c,
+            n: clean(r.n, 60),
+            o: r.o.map(function (o) { return clean(o, 48); }),
+            p: r.p.map(function (p) {
+              var lo = num(p[0]), hi = num(p[1]);
+              if (!lo && hi) lo = hi;
+              if (hi && hi < lo) { var tmp = lo; lo = hi; hi = tmp; }
+              return [lo, Math.max(lo, hi)];
+            })
+          };
+        })
+      };
+    }
+    function problem(cfg) {
+      for (var i = 0; i < cfg.items.length; i++) {
+        var it = cfg.items[i];
+        if (it.n.length < 2) return 'Please give every ' + N.noun + ' a name.';
+        if (!it.p.some(function (p) { return p[0] > 0; })) return 'Add at least one price for ' + it.n + ', or remove it.';
+      }
+      return '';
+    }
+    function preview() {
+      var items = toConfig().items.map(itemFromConfig).filter(Boolean);
+      if (!items.length) return;
+      cfgRate = 1;
+      T = items;
+      renderMenu();
+      update(false);
+    }
+    function changed() {
+      dirty = true;
+      setStatus('', '');
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(preview, 160);
+    }
+
+    list.addEventListener('input', function (e) {
+      var el = e.target, k = el.getAttribute('data-k'), r = rows[+el.getAttribute('data-i')], s = +el.getAttribute('data-s');
+      if (!k || !r) return;
+      if (k === 'n') r.n = el.value;
+      else if (k === 'o') r.o[s] = el.value;
+      else if (k === 'lo') r.p[s] = [num(el.value), r.p[s][1]];
+      else if (k === 'hi') r.p[s] = [r.p[s][0], num(el.value)];
+      changed();
+    });
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-rm]') : null;
+      if (!b || rows.length <= 1) return;
+      rows.splice(+b.getAttribute('data-rm'), 1);
+      render();
+      changed();
+    });
+    addSel.addEventListener('change', function () {
+      var c = addSel.value;
+      if (!c || rows.length >= MAX_MENU) return;
+      var r;
+      if (c === 'z') {
+        var k = 1;
+        while (rows.some(function (x) { return x.c === 'z' + k; })) k++;
+        r = { c: 'z' + k, n: '', o: N.sizes.slice(0, 3), p: [[0, 0], [0, 0], [0, 0]] };
+      } else {
+        var tr = N.lib[c], o = tr.sizes || N.sizes;
+        r = { c: c, n: tr.name, o: [o[0], o[1], o[2]], p: [priceOf(tr, 0), priceOf(tr, 1), priceOf(tr, 2)] };
+      }
+      rows.push(r);
+      render();
+      changed();
+      var names = list.querySelectorAll('.ed-name'), last = names[names.length - 1];
+      if (last) {
+        scrollToEl(last.closest('.ed-item'), 'center');
+        if (c === 'z') { try { last.focus({ preventScroll: true }); } catch (x) { last.focus(); } }
+      }
+    });
+    saveBtn.addEventListener('click', function () {
+      var cfg = toConfig(), err = problem(cfg);
+      if (err) { setStatus(err, 'bad'); return; }
+      saveBtn.disabled = true;
+      setStatus('Saving…', '');
+      var body = new URLSearchParams();
+      body.set('id', clinicId);
+      body.set('token', editToken);
+      body.set('config', JSON.stringify(cfg));
+      fetch(CONFIG_URL, { method: 'POST', mode: 'cors', credentials: 'omit', cache: 'no-store', body: body })
+        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (j) { return { ok: res.ok && j && j.ok, j: j || {} }; }); })
+        .then(function (out) {
+          if (out.ok) {
+            dirty = false;
+            try { window.localStorage.removeItem('iqc:' + clinicId); } catch (e) { /* ignore */ }
+            setStatus('Saved. Your live page now shows these prices.', 'good');
+          } else if (out.j.error === 'token') {
+            setStatus('This edit link isn’t valid any more. Reply to your welcome email and we’ll send a new one.', 'bad');
+          } else {
+            setStatus(out.j.message || 'Couldn’t save just now. Please try again.', 'bad');
+          }
+        })
+        .catch(function () { setStatus('Couldn’t save. Check your connection and try again.', 'bad'); })
+        .then(function () { saveBtn.disabled = false; });
+    });
+    window.addEventListener('beforeunload', function (e) {
+      if (!dirty) return;
+      e.preventDefault();
+      e.returnValue = '';
+    });
+
+    setText('edAddLbl', 'Add a ' + N.noun);
+    setText('edCur', CUR.visitor
+      ? 'Prices in ' + CUR.name + ' (' + CUR.code + '). Visitors from other countries see them converted to their own currency. Leave an option’s prices blank to hide it.'
+      : 'Prices in ' + CUR.name + ' (' + CUR.code + '), whole numbers. Leave an option’s prices blank to hide it.');
+    render();
+    ed.hidden = false;
+    if (!loadedOk) setStatus('We couldn’t load your saved prices just now. Refresh this page before making changes, so you don’t overwrite them.', 'bad');
+  }
+
+  if (isEdit) {
+    $('demoNote').hidden = false;
+    setText('demoNoteTxt', 'Preview: requests aren’t sent from this editing link. Your live link sends them to ' + (cemail || 'your inbox') + '.');
   }
 
   measureBar();
   update(false);
+  if (clinicId && !isDemo) {
+    treatEl.classList.add('loading');
+    loadConfig(isEdit ? 8000 : 2500, function (cfg, ok) {
+      treatEl.classList.remove('loading');
+      if (cfg && applyConfig(cfg)) { renderMenu(); update(false); }
+      if (isEdit) startEditor(ok);
+    });
+  }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureBar);
 })();
 </script>
