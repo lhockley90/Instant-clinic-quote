@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Instant Quote Calculator</title>
+<meta name="description" content="Get an instant guide price for your treatment and request your consultation in seconds.">
+<meta name="theme-color" content="#08080b">
+<meta name="color-scheme" content="dark">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Instant Quote Calculator">
+<meta property="og:description" content="Get an instant guide price and request your consultation in seconds.">
+<link rel="icon" id="favicon" href="data:,">
+<style>
+:root{
+  --accent:#f472b6;--accent-rgb:244,114,182;
+  --accent-light:#fbcfe8;--accent-light-rgb:251,207,232;
+  --accent-deep:#be185d;
+  --bg:#07070a;--ink:#0a0a0e;
+  --text:#f6f4f8;--muted:rgba(246,244,248,.68);--faint:rgba(246,244,248,.44);
+  --line:rgba(255,255,255,.09);--line-strong:rgba(255,255,255,.17);
+  --r-lg:24px;--r-md:16px;
+  --bar-h:0px;
+  --serif:"Cormorant Garamond","Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,ui-serif,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,system-ui,sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
+body.lock{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent-light);outline-offset:3px}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.i{width:20px;height:20px;display:block;flex:none}
+
+/* ---------- Background ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 50% -10%,rgba(var(--accent-rgb),.17),transparent 60%),radial-gradient(70% 50% at 100% 100%,rgba(var(--accent-rgb),.09),transparent 60%),linear-gradient(180deg,#0c0c11 0%,#060608 100%)}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.6;will-change:transform}
+.orb.a{width:48vmax;height:48vmax;top:-20vmax;left:-16vmax;background:radial-gradient(circle at 35% 35%,rgba(var(--accent-rgb),.55),rgba(var(--accent-rgb),0) 65%);animation:drift1 24s ease-in-out infinite alternate}
+.orb.b{width:40vmax;height:40vmax;bottom:-18vmax;right:-14vmax;background:radial-gradient(circle at 60% 40%,rgba(var(--accent-light-rgb),.32),rgba(var(--accent-light-rgb),0) 65%);animation:drift2 28s ease-in-out infinite alternate}
+.grain{position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes drift1{to{transform:translate3d(10vmax,8vmax,0) scale(1.12)}}
+@keyframes drift2{to{transform:translate3d(-8vmax,-10vmax,0) scale(1.06)}}
+
+/* ---------- Demo top bar ---------- */
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 10px;width:100%;margin:0;padding:10px 16px;border:0;border-bottom:1px solid rgba(var(--accent-rgb),.32);background:linear-gradient(90deg,rgba(var(--accent-rgb),.26),rgba(var(--accent-rgb),.1) 50%,rgba(var(--accent-rgb),.26)),rgba(8,8,11,.72);-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);color:var(--text);font-size:11.5px;line-height:1.35;text-align:center}
+.topbar .live{display:inline-flex;align-items:center;gap:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.topbar .live b{color:#fff;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pulse{flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(var(--accent-rgb),.7);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(var(--accent-rgb),0)}100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0)}}
+.topbar .sep{opacity:.5}
+.topbar .msg{letter-spacing:.03em;font-weight:500;text-decoration:underline;text-decoration-color:rgba(var(--accent-rgb),.7);text-underline-offset:3px}
+@media (max-width:520px){.topbar .sep{display:none}.topbar .msg{flex-basis:100%}}
+
+/* ---------- Layout ---------- */
+.app{position:relative;z-index:1}
+.wrap{max-width:1140px;margin:0 auto;padding:18px 16px calc(104px + env(safe-area-inset-bottom))}
+.card{position:relative;padding:20px;border-radius:var(--r-lg);border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.028)),rgba(12,12,17,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 24px 60px -28px rgba(0,0,0,.75)}
+.main{display:grid;gap:14px}
+.col{display:grid;gap:14px}
+.step,.result,.lead,.done,.pitch{scroll-margin-top:calc(var(--bar-h) + 16px)}
+
+/* ---------- Header ---------- */
+.hdr{display:flex;align-items:center;gap:14px;padding:6px 2px 0}
+.mono{flex:0 0 52px;height:52px;padding:1.5px;border-radius:16px;background:linear-gradient(140deg,var(--accent-light),var(--accent) 50%,var(--accent-deep))}
+.mono span{display:grid;place-items:center;width:100%;height:100%;border-radius:14.5px;background:#0c0c11;color:var(--accent-light);font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:.03em}
+.hdr-txt{flex:1;min-width:0}
+.eyebrow{margin:0;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-light)}
+.clinic{margin:3px 0 0;font-family:var(--serif);font-size:clamp(22px,6.2vw,32px);font-weight:600;line-height:1.08;letter-spacing:-.005em;overflow-wrap:anywhere}
+.badge{flex:none;display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid var(--line-strong);background:rgba(255,255,255,.04);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.bdot{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 10px #34d399}
+@media (max-width:440px){.badge{display:none}}
+
+/* ---------- Hero ---------- */
+.hero{padding:24px 2px 20px}
+.headline{margin:0;font-family:var(--serif);font-size:clamp(38px,11vw,68px);font-weight:500;line-height:.98;letter-spacing:-.02em}
+.headline em{display:block;padding-bottom:.08em;font-style:italic;background:linear-gradient(110deg,#fff 0%,var(--accent-light) 35%,var(--accent) 75%,var(--accent-deep) 125%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{max-width:48ch;margin:14px 0 0;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none}
+.chips li{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--muted);font-size:12.5px}
+.chips .i{width:14px;height:14px;color:var(--accent)}
+
+/* ---------- Steps ---------- */
+.step-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.num{min-width:22px;color:var(--accent-light);font-family:var(--serif);font-size:16px;font-style:italic;opacity:.9}
+.step-hd h3{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.grid.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.opt{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-height:128px;padding:14px 13px 13px;border-radius:var(--r-md);border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);text-align:left;transition:border-color .25s,background .25s,transform .2s,box-shadow .25s}
+.opt:hover{border-color:var(--line-strong);background:rgba(255,255,255,.055)}
+.opt:active{transform:scale(.98)}
+.opt-ic{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;border:1px solid rgba(var(--accent-rgb),.22);background:rgba(var(--accent-rgb),.1);color:var(--accent-light);transition:background .25s,color .25s}
+.opt-name{font-size:14px;font-weight:600;line-height:1.25}
+.opt-from{margin-top:auto;color:var(--faint);font-size:12.5px}
+.opt-from b{color:var(--muted);font-weight:600}
+.opt-ck{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--ink);transform:scale(0);transition:transform .25s var(--ease)}
+.opt-ck .i{width:13px;height:13px;stroke-width:2.6}
+.opt.on{border-color:rgba(var(--accent-rgb),.75);background:linear-gradient(160deg,rgba(var(--accent-rgb),.2),rgba(var(--accent-rgb),.04) 70%);box-shadow:0 0 0 1px rgba(var(--accent-rgb),.35),0 14px 34px -14px rgba(var(--accent-rgb),.6)}
+.opt.on .opt-ck{transform:scale(1)}
+.opt.on .opt-ic{border-color:transparent;background:var(--accent);color:var(--ink)}
+
+.sizes{display:grid;gap:10px}
+.size{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:12px 14px;border-radius:var(--r-md);border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);text-align:left;transition:border-color .25s,background .25s,box-shadow .25s}
+.size:hover{border-color:var(--line-strong)}
+.radio{flex:0 0 20px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line-strong);transition:border-color .2s}
+.radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent);transform:scale(0);transition:transform .2s var(--ease)}
+.size-l{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.3}
+.size-p{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.size.on{border-color:rgba(var(--accent-rgb),.7);background:linear-gradient(90deg,rgba(var(--accent-rgb),.14),rgba(var(--accent-rgb),.03));box-shadow:0 0 0 1px rgba(var(--accent-rgb),.3)}
+.size.on .radio{border-color:var(--accent)}
+.size.on .radio::after{transform:scale(1)}
+.size.on .size-p{color:var(--accent-light)}
+
+/* ---------- Result ---------- */
+.result{overflow:hidden;border-color:rgba(var(--accent-rgb),.3)}
+.result::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 60% at 100% 0%,rgba(var(--accent-rgb),.2),transparent 60%);pointer-events:none}
+.result>*{position:relative}
+.res-empty{padding:2px 0 18px;color:var(--faint);font-size:14.5px}
+.res-empty p{margin:0}
+.ghost-price{display:flex;gap:10px;margin:2px 0 14px}
+.ghost-price span{flex:1;max-width:130px;height:44px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.11),rgba(255,255,255,.04));background-size:200% 100%;animation:shimmer 1.8s linear infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+.res-name{margin:0;font-size:17px;font-weight:650;line-height:1.3}
+.res-size{margin:2px 0 10px;color:var(--muted);font-size:13.5px}
+.price{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1em .28em;font-family:var(--serif);font-size:clamp(40px,11.5vw,56px);font-weight:600;line-height:1.02;letter-spacing:-.01em;font-variant-numeric:tabular-nums lining-nums;background:linear-gradient(115deg,#fff 0%,var(--accent-light) 45%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.price .dash{font-weight:400;color:rgba(var(--accent-light-rgb),.55);-webkit-text-fill-color:rgba(var(--accent-light-rgb),.55)}
+.res-loc{display:flex;align-items:center;gap:6px;margin:8px 0 0;color:var(--muted);font-size:12.5px}
+.res-loc .i{width:14px;height:14px;color:var(--accent)}
+.incl-hd{margin:18px 0 8px;color:var(--faint);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.incl{display:grid;gap:8px;margin:0 0 18px;padding:0;list-style:none}
+.incl li{display:flex;align-items:flex-start;gap:9px;color:var(--muted);font-size:14px}
+.incl .i{width:18px;height:18px;margin-top:1px;color:var(--accent)}
+.pop{animation:pop .5s var(--ease)}
+@keyframes pop{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
+.fine{display:block;margin:12px 0 0;color:var(--faint);font-size:12px;line-height:1.5;text-align:center}
+.fine .i{display:inline-block;width:13px;height:13px;margin-right:5px;vertical-align:-2px}
+
+/* ---------- Buttons ---------- */
+.cta{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;padding:15px 20px;overflow:hidden;border:0;border-radius:16px;background:linear-gradient(135deg,var(--accent-light) -25%,var(--accent) 45%,var(--accent-deep) 125%);color:var(--ink);font-size:16px;font-weight:750;letter-spacing:.005em;line-height:1.25;text-align:center;text-decoration:none;box-shadow:0 14px 34px -12px rgba(var(--accent-rgb),.7),inset 0 1px 0 rgba(255,255,255,.45);transition:transform .2s,box-shadow .2s,filter .25s}
+.cta::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:sheen 4.8s ease-in-out infinite;pointer-events:none}
+@keyframes sheen{0%,62%{left:-60%}100%{left:135%}}
+.cta:hover{filter:brightness(1.06)}
+.cta:active{transform:scale(.985)}
+@media (max-width:420px){.cta{padding:15px 14px;font-size:15px;letter-spacing:0}}
+.cta.idle{filter:saturate(.5) brightness(.8);box-shadow:none}
+.cta.idle::after{display:none}
+.cta[disabled]{cursor:progress;opacity:.8}
+.spin{width:18px;height:18px;border:2px solid rgba(0,0,0,.22);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ghost{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:10px;padding:12px 18px;border:1px solid var(--line-strong);border-radius:14px;background:transparent;color:var(--text);font-size:15px;font-weight:600;text-decoration:none}
+.ghost:hover{background:rgba(255,255,255,.05)}
+
+/* ---------- Lead form ---------- */
+.lead{display:grid;gap:12px;margin-top:4px;animation:rise .5s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.form-hd{margin:6px 0 0;font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.15}
+.sum{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(var(--accent-rgb),.28);background:rgba(var(--accent-rgb),.08);font-size:13.5px}
+.sum span{min-width:0;color:var(--muted)}
+.sum b{color:var(--accent-light);white-space:nowrap}
+.demo-note{display:flex;gap:10px;padding:12px 14px;border-radius:14px;border:1px dashed rgba(var(--accent-rgb),.5);background:rgba(var(--accent-rgb),.06);color:var(--muted);font-size:13px}
+.demo-note .i{width:18px;height:18px;color:var(--accent)}
+.fld{display:grid;gap:6px}
+.fld>span{color:var(--muted);font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.fld>span i{font-style:normal;text-transform:none;letter-spacing:0;color:var(--faint);font-weight:400}
+.fld input,.fld select,.fld textarea{display:block;width:100%;min-height:52px;padding:13px 14px;border:1px solid var(--line-strong);border-radius:14px;background:rgba(255,255,255,.04);color:var(--text);font-size:16px;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s,box-shadow .2s,background .2s}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--faint)}
+.fld textarea{min-height:96px;resize:vertical;line-height:1.45}
+.fld input[type=date]{min-width:0}
+.fld input[type=date]::-webkit-date-and-time-value{text-align:left}
+.fld select{padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='.6' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px}
+.fld select option{background:#15151b;color:var(--text)}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:rgba(var(--accent-rgb),.85);background:rgba(255,255,255,.065);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.16)}
+.fld.bad input,.fld.bad select,.fld.bad textarea{border-color:#fb7185;box-shadow:0 0 0 4px rgba(251,113,133,.14)}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.chk{display:flex;align-items:flex-start;gap:11px;color:var(--muted);font-size:14px;line-height:1.45;cursor:pointer}
+.chk input{flex:0 0 22px;display:grid;place-content:center;width:22px;height:22px;margin:0;border:1px solid var(--line-strong);border-radius:7px;background:rgba(255,255,255,.04);-webkit-appearance:none;appearance:none;cursor:pointer;transition:background .2s,border-color .2s}
+.chk input::after{content:"";width:11px;height:6px;margin-top:-3px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(-45deg) scale(0);transition:transform .15s}
+.chk input:checked{border-color:var(--accent);background:var(--accent)}
+.chk input:checked::after{transform:rotate(-45deg) scale(1)}
+.chk.bad input{border-color:#fb7185;box-shadow:0 0 0 4px rgba(251,113,133,.14)}
+.hp{position:absolute!important;left:-10000px!important;width:1px;height:1px;opacity:0}
+.err{padding:10px 12px;border-radius:12px;border:1px solid rgba(251,113,133,.35);background:rgba(251,113,133,.08);color:#fecdd3;font-size:14px}
+.err:empty{display:none}
+
+/* ---------- Done ---------- */
+.done{margin-top:4px;padding:24px 18px 18px;border-radius:18px;border:1px solid rgba(var(--accent-rgb),.38);background:linear-gradient(160deg,rgba(var(--accent-rgb),.15),rgba(255,255,255,.02));text-align:center;outline:none;animation:rise .5s var(--ease) both}
+.done-ic{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 14px;border-radius:50%;background:var(--accent);color:var(--ink);box-shadow:0 0 0 9px rgba(var(--accent-rgb),.14)}
+.done-ic .i{width:26px;height:26px;stroke-width:2.2}
+.done h4{margin:0 0 6px;font-family:var(--serif);font-size:28px;font-weight:600;line-height:1.15}
+.done p{max-width:38ch;margin:0 auto 16px;color:var(--muted);font-size:15px}
+.recap{display:grid;gap:7px;margin:0 0 14px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.25);font-size:13.5px;text-align:left}
+.recap div{display:flex;justify-content:space-between;gap:12px}
+.recap span{color:var(--faint)}
+.recap b{font-weight:600;text-align:right}
+
+/* ---------- Pitch (demo) ---------- */
+.pitch{margin-top:16px;padding:26px 20px;overflow:hidden;border-color:rgba(var(--accent-rgb),.32);background:radial-gradient(120% 90% at 100% 0%,rgba(var(--accent-rgb),.22),transparent 55%),linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025))}
+.pitch h3{margin:8px 0 10px;font-family:var(--serif);font-size:clamp(28px,7.5vw,40px);font-weight:600;line-height:1.05;letter-spacing:-.01em}
+.pitch-copy>p{margin:0 0 18px;color:var(--muted)}
+.ticks{display:grid;gap:11px;margin:0 0 22px;padding:0;list-style:none}
+.ticks li{display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.45}
+.ticks .i{width:20px;height:20px;margin-top:1px;color:var(--accent)}
+.igmock{display:flex;align-items:center;gap:13px;margin:0 0 16px;padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.38)}
+.ig-av{flex:0 0 56px;height:56px;padding:2.5px;border-radius:50%;background:conic-gradient(from 200deg,var(--accent-light),var(--accent),var(--accent-deep),var(--accent-light))}
+.ig-av span{display:grid;place-items:center;width:100%;height:100%;border:2.5px solid #0d0d12;border-radius:50%;background:#14141a;color:var(--accent-light);font-family:var(--serif);font-size:19px;font-weight:600}
+.ig-txt{min-width:0}
+.ig-h{overflow:hidden;font-size:14px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+.ig-b{color:var(--muted);font-size:13px}
+.ig-l{display:inline-flex;align-items:center;gap:6px;margin-top:5px;padding:5px 10px;border-radius:999px;background:rgba(var(--accent-rgb),.14);color:var(--accent-light);font-size:12.5px;font-weight:700}
+.ig-l .i{width:14px;height:14px}
+.ig-cap{margin:-6px 0 16px;color:var(--faint);font-size:12px;text-align:center}
+.price-tag{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;padding:14px 16px;border:1px solid rgba(var(--accent-rgb),.32);border-radius:16px;background:rgba(var(--accent-rgb),.08)}
+.pt-amount{color:var(--accent-light);font-family:var(--serif);font-size:38px;font-weight:600;line-height:1;font-variant-numeric:lining-nums}
+.pt-note{color:var(--muted);font-size:13px;line-height:1.35}
+
+/* ---------- Dock ---------- */
+.dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 16px;border:1px solid var(--line-strong);border-radius:20px;background:rgba(16,16,22,.8);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:0 18px 44px -12px rgba(0,0,0,.75);opacity:0;transform:translateY(calc(100% + 30px));pointer-events:none;transition:transform .4s var(--ease),opacity .3s}
+.dock.show{opacity:1;transform:none;pointer-events:auto}
+.dock-txt{flex:1;min-width:0}
+.dock-name{display:block;overflow:hidden;color:var(--faint);font-size:11.5px;text-overflow:ellipsis;white-space:nowrap}
+.dock-price{display:block;color:var(--accent-light);font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dock .cta{width:auto;min-height:46px;padding:12px 18px;border-radius:14px;font-size:15px}
+
+/* ---------- Sheet ---------- */
+.sheet-wrap{position:fixed;inset:0;z-index:60}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .35s}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:92vh;max-height:92dvh;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:10px 20px calc(24px + env(safe-area-inset-bottom));border:1px solid var(--line-strong);border-bottom:0;border-radius:28px 28px 0 0;background:radial-gradient(100% 50% at 100% 0%,rgba(var(--accent-rgb),.2),transparent 60%),linear-gradient(180deg,rgba(26,26,34,.96),rgba(12,12,17,.98));box-shadow:0 -30px 80px -20px rgba(0,0,0,.8);transform:translateY(105%);transition:transform .45s var(--ease)}
+.sheet-wrap.open .scrim{opacity:1}
+.sheet-wrap.open .sheet{transform:none}
+.grab{width:42px;height:5px;margin:0 auto 14px;border-radius:99px;background:rgba(255,255,255,.22)}
+.x{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.06);color:var(--text)}
+.x .i{width:18px;height:18px}
+.sheet-title{margin:8px 44px 8px 0;font-family:var(--serif);font-size:clamp(28px,7.5vw,36px);font-weight:600;line-height:1.08}
+.sheet-sub{margin:0 0 6px;color:var(--muted)}
+.how{display:grid;gap:14px;margin:18px 0;padding:0;list-style:none;counter-reset:s}
+.how li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+.how li::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(var(--accent-rgb),.5);border-radius:50%;background:rgba(var(--accent-rgb),.1);color:var(--accent-light);font-size:14px;font-weight:700}
+.how b{display:block;font-size:15px}
+.how span{color:var(--muted);font-size:14px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;padding:0;list-style:none}
+.tags li{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.05);color:var(--muted);font-size:12.5px}
+.tags .i{width:14px;height:14px;color:var(--accent)}
+
+/* ---------- Toast + footer ---------- */
+.toast{position:fixed;top:calc(var(--bar-h) + 14px);left:50%;z-index:80;max-width:calc(100% - 32px);padding:11px 16px;border:1px solid var(--line-strong);border-radius:14px;background:rgba(20,20,26,.94);color:var(--text);font-size:14px;font-weight:600;text-align:center;opacity:0;transform:translate(-50%,-16px);pointer-events:none;transition:transform .3s var(--ease),opacity .3s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.foot{padding:30px 4px 6px;color:var(--faint);font-size:12px;line-height:1.6;text-align:center}
+.foot p{max-width:62ch;margin:0 auto}
+noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:20px;text-align:center}
+
+/* ---------- Desktop ---------- */
+@media (min-width:640px){
+  .sheet{left:50%;right:auto;bottom:24px;width:540px;max-height:calc(100vh - 48px);border-bottom:1px solid var(--line-strong);border-radius:28px;transform:translate(-50%,calc(100% + 60px))}
+  .sheet-wrap.open .sheet{transform:translate(-50%,0)}
+  .grab{display:none}
+  .sheet{padding:28px 30px 28px}
+}
+@media (min-width:960px){
+  .wrap{padding:30px 32px 56px}
+  .hero{padding:36px 0 30px}
+  .card{padding:24px}
+  .main{grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:20px;align-items:start}
+  .side{position:sticky;top:calc(var(--bar-h) + 20px)}
+  .side.static{position:static}
+  .pitch{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:32px;align-items:center;padding:34px}
+  .ticks{margin-bottom:0}
+  .dock{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div><div class="grain"></div></div>
+
+<button type="button" class="topbar" id="demoBar" hidden>
+  <span class="live"><span class="pulse" aria-hidden="true"></span><span>Live preview for</span><b id="barName">Your Clinic</b></span>
+  <span class="sep" aria-hidden="true">•</span>
+  <span class="msg">Add this to your Instagram Bio &amp; Website</span>
+</button>
+
+<noscript><p>This instant quote calculator needs JavaScript. Please enable it to see your guide price.</p></noscript>
+
+<div class="app">
+  <main class="wrap">
+    <header class="hdr">
+      <div class="mono" aria-hidden="true"><span id="mono">YC</span></div>
+      <div class="hdr-txt">
+        <p class="eyebrow" id="eyebrow">Aesthetics Clinic</p>
+        <h1 class="clinic" id="clinicName">Your Clinic</h1>
+      </div>
+      <span class="badge"><span class="bdot" aria-hidden="true"></span>Instant quote</span>
+    </header>
+
+    <section class="hero">
+      <h2 class="headline"><span id="h1a">Your treatment,</span> <em id="h1b">priced in seconds.</em></h2>
+      <p class="sub" id="sub">Choose a treatment and package to see an instant guide price, then request your consultation in one tap.</p>
+      <ul class="chips">
+        <li><span data-icon="clock"></span>30-second quote</li>
+        <li><span data-icon="pin"></span><span id="chipCity">Local pricing</span></li>
+        <li><span data-icon="shield"></span>No obligation</li>
+      </ul>
+    </section>
+
+    <div class="main">
+      <div class="col">
+        <section class="card step" id="stepTreat" aria-labelledby="t1">
+          <div class="step-hd"><span class="num" aria-hidden="true">01</span><h3 id="t1">Choose your treatment</h3></div>
+          <div class="grid" id="treatments"></div>
+        </section>
+        <section class="card step" aria-labelledby="t2">
+          <div class="step-hd"><span class="num" aria-hidden="true">02</span><h3 id="t2">Choose your package</h3></div>
+          <div class="sizes" id="sizes"></div>
+        </section>
+      </div>
+
+      <div class="side" id="side">
+        <section class="card result" id="result" aria-labelledby="t3">
+          <div class="step-hd"><span class="num" aria-hidden="true">03</span><h3 id="t3">Your instant estimate</h3></div>
+
+          <div class="res-empty" id="resEmpty">
+            <div class="ghost-price" aria-hidden="true"><span></span><span></span></div>
+            <p>Select a treatment to reveal your guide price.</p>
+          </div>
+
+          <div class="res-body" id="resBody" hidden>
+            <p class="res-name" id="resName"></p>
+            <p class="res-size" id="resSize"></p>
+            <div class="price" aria-hidden="true"><span id="pLow"></span><span class="dash">–</span><span id="pHigh"></span></div>
+            <p class="res-loc"><span data-icon="pin"></span><span id="resLoc"></span></p>
+            <div class="incl-hd">Typically included</div>
+            <ul class="incl" id="incl"></ul>
+          </div>
+          <p class="sr" id="srPrice" aria-live="polite"></p>
+
+          <button type="button" class="cta idle" id="bookBtn">Book / Request This Consultation&nbsp;→</button>
+
+          <form class="lead" id="leadForm" novalidate hidden>
+            <h4 class="form-hd">Request your consultation</h4>
+            <div class="demo-note" id="demoNote" hidden><span data-icon="sparkle"></span><span id="demoNoteTxt"></span></div>
+            <div class="sum"><span id="sumTxt"></span><b id="sumPrice"></b></div>
+            <label class="fld"><span>Full name</span><input id="fName" type="text" autocomplete="name" maxlength="80" required></label>
+            <label class="fld"><span>Phone</span><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" required></label>
+            <label class="fld"><span>Email</span><input id="fEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" required></label>
+            <div class="row2">
+              <label class="fld"><span>Preferred date</span><input id="fDate" type="date"></label>
+              <label class="fld"><span>Preferred time</span>
+                <select id="fTime">
+                  <option value="">Any time</option>
+                  <option value="Morning">Morning</option>
+                  <option value="Afternoon">Afternoon</option>
+                  <option value="Evening">Evening</option>
+                  <option value="Weekend">Weekend</option>
+                </select>
+              </label>
+            </div>
+            <label class="fld"><span>Notes <i>(optional)</i></span><textarea id="fNotes" rows="3" maxlength="1000"></textarea></label>
+            <input class="hp" id="fHp" type="text" name="company_website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="chk" id="ageRow" hidden><input id="fAge" type="checkbox"><span>I confirm I am 18 or over.</span></label>
+            <label class="chk" id="consentRow"><input id="fConsent" type="checkbox" required><span id="consentTxt">I agree to being contacted about this enquiry.</span></label>
+            <div class="err" id="formErr" role="alert"></div>
+            <button type="submit" class="cta" id="submitBtn">Send My Request →</button>
+            <p class="fine"><span data-icon="lock"></span><span id="privacyTxt">Your details are only shared with this clinic.</span></p>
+          </form>
+
+          <div class="done" id="done" hidden tabindex="-1">
+            <div class="done-ic" id="doneIc"></div>
+            <h4 id="doneTitle"></h4>
+            <p id="doneMsg"></p>
+            <div class="recap" id="recap"></div>
+            <a class="cta" id="mailBtn" href="#" hidden>Email My Request →</a>
+            <button type="button" class="cta" id="doneActivate" hidden></button>
+            <button type="button" class="ghost" id="againBtn">Get another quote</button>
+          </div>
+
+          <p class="fine" id="resFine"></p>
+        </section>
+      </div>
+    </div>
+
+    <section class="card pitch" id="pitch" hidden aria-labelledby="pitchTitle">
+      <div class="pitch-copy">
+        <p class="eyebrow" id="pitchEyebrow"></p>
+        <h3 id="pitchTitle">Turn your Instagram bio into a 24/7 booking funnel.</h3>
+        <p id="pitchSub"></p>
+        <ul class="ticks" id="pitchTicks"></ul>
+      </div>
+      <div class="pitch-side">
+        <div class="igmock" aria-hidden="true">
+          <div class="ig-av"><span id="igMono"></span></div>
+          <div class="ig-txt">
+            <div class="ig-h" id="igHandle"></div>
+            <div class="ig-b" id="igBio"></div>
+            <div class="ig-l"><span data-icon="link"></span><span>Get your instant price</span></div>
+          </div>
+        </div>
+        <p class="ig-cap">Your Instagram bio, upgraded</p>
+        <button type="button" class="cta" id="pitchBtn"></button>
+        <p class="fine" id="pitchFine">One-off £197.99 · Secure Stripe checkout · Automatic delivery</p>
+      </div>
+    </section>
+
+    <footer class="foot"><p id="footTxt"></p></footer>
+  </main>
+</div>
+
+<div class="dock" id="dock" aria-hidden="true">
+  <div class="dock-txt"><span class="dock-name" id="dockName"></span><span class="dock-price" id="dockPrice"></span></div>
+  <button type="button" class="cta" id="dockBtn" tabindex="-1">Book →</button>
+</div>
+
+<div class="sheet-wrap" id="sheet" hidden>
+  <div class="scrim" data-close></div>
+  <div class="sheet" id="sheetPanel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="grab" aria-hidden="true"></div>
+    <button type="button" class="x" id="sheetClose" data-close aria-label="Close"><span data-icon="x"></span></button>
+    <p class="eyebrow">Activate your booking funnel</p>
+    <h3 class="sheet-title" id="sheetTitle"></h3>
+    <p class="sheet-sub" id="sheetSub"></p>
+    <ol class="how">
+      <li><div><b>Secure checkout</b><span>Pay safely through Stripe. It takes under a minute.</span></div></li>
+      <li><div><b>Instant delivery</b><span>Your calculator link and website code arrive in your inbox automatically.</span></div></li>
+      <li><div><b>Live 24/7</b><span id="howLive">Add the link to your Instagram bio and website. Consultation requests land in your inbox.</span></div></li>
+    </ol>
+    <ul class="tags" id="sheetTags"></ul>
+    <div class="price-tag"><span class="pt-amount" id="sheetPrice">£197.99</span><span class="pt-note">one-off payment<br>no monthly fees</span></div>
+    <a class="cta" id="checkoutBtn" href="https://buy.stripe.com/cNi6oI9SZemEfVqcCVbAs02" target="_top" rel="noopener">Continue to Secure Checkout →</a>
+    <p class="fine"><span data-icon="lock"></span><span id="sheetFine">Payments processed securely by Stripe. No calls, no setup.</span></p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ==========================================================================
+     Instant Treatment & Tattoo Quote Calculator (multi-tenant, zero onboarding)
+
+     URL parameters
+       name      Clinic / studio name
+       city      City name (UK + US local price multipliers)
+       niche     aesthetics | tattoo | dentist
+       cc        uk (GBP) | us (USD at 1.4x)          alias: country
+       cemail    Clinic's own email; client requests are routed to it
+       demo      0 = Live Client Mode (anything else / absent = Prospect Demo Mode)
+       webhook   Optional https:// override for the n8n lead-router webhook
+       mult      Optional price multiplier override, 0.5 to 2
+     ========================================================================== */
+
+  // £197.99 one-off. Stripe Adaptive Pricing converts it to the buyer's local currency at checkout.
+  var STRIPE_LINK = 'https://buy.stripe.com/cNi6oI9SZemEfVqcCVbAs02';
+  var PRICE_LABEL = '£197.99';
+
+  // n8n lead router ("Clinic Leads & Stripe Delivery"). If it is unreachable or rejects a
+  // request, the request is routed to the clinic by email (cemail) instead, so no lead is lost.
+  var DEFAULT_LEAD_WEBHOOK = 'https://uk-trade-engine.app.n8n.cloud/webhook/clinic-lead';
+
+  var US_MULT = 1.4;
+  var REQUEST_TIMEOUT_MS = 12000;
+
+  /* ---------- Icons (inline, no external assets) ---------- */
+  var ICON_PATHS = {
+    syringe: '<path d="M19 2l3 3M20.5 3.5L17 7"/><path d="M15 5l4 4-9.5 9.5H5.5v-4z"/><path d="M5.5 18.5L2 22"/><path d="M10.5 9.5l1.5 1.5M13 7l1.5 1.5"/>',
+    lips: '<path d="M2.5 12c2.2-3.2 4.6-5 6.8-5 1.1 0 2 .6 2.7 1.4.7-.8 1.6-1.4 2.7-1.4 2.2 0 4.6 1.8 6.8 5-2.6 3.4-5.8 5-9.5 5s-6.9-1.6-9.5-5z"/><path d="M2.5 12c3.2.9 6.4 1.3 9.5 1.3s6.3-.4 9.5-1.3"/>',
+    drop: '<path d="M12 3c3.3 4.1 6 7.4 6 10.6a6 6 0 0 1-12 0C6 10.4 8.7 7.1 12 3z"/><path d="M9.4 14.2a2.7 2.7 0 0 0 2.6 2.6"/>',
+    bolt: '<path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/>',
+    dots: '<circle cx="6" cy="6" r="1.2"/><circle cx="12" cy="6" r="1.2"/><circle cx="18" cy="6" r="1.2"/><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/><circle cx="6" cy="18" r="1.2"/><circle cx="12" cy="18" r="1.2"/><circle cx="18" cy="18" r="1.2"/>',
+    waves: '<path d="M3 8c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0"/><path d="M3 13c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0"/><path d="M3 18c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0"/>',
+    pen: '<path d="M4 20l1.2-4.6L16.5 4.1a2 2 0 0 1 2.8 0l.6.6a2 2 0 0 1 0 2.8L8.6 18.8z"/><path d="M14.5 6l3.5 3.5"/>',
+    eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    layers: '<path d="M12 2.5l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16.5l9 5 9-5"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+    refresh: '<path d="M20 12a8 8 0 0 1-14.2 5"/><path d="M4 12A8 8 0 0 1 18.2 7"/><path d="M18.5 3v4.2h-4.2"/><path d="M5.5 21v-4.2h4.2"/>',
+    portrait: '<circle cx="12" cy="8.5" r="4"/><path d="M4 21c1.4-4 4.4-6 8-6s6.6 2 8 6"/>',
+    arch: '<path d="M5 5c0 8.5 3.1 14 7 14s7-5.5 7-14"/><path d="M8.5 5c0 6 1.6 10 3.5 10s3.5-4 3.5-10"/>',
+    tooth: '<path d="M8 3C5.2 3 3.5 5 3.5 7.8c0 2.8 1.3 4.2 1.9 6.7.6 2.5.9 6.5 2.9 6.5 1.8 0 1.9-4.2 3.7-4.2s1.9 4.2 3.7 4.2c2 0 2.3-4 2.9-6.5.6-2.5 1.9-3.9 1.9-6.7C20.5 5 18.8 3 16 3c-1.8 0-2.6 1-4 1S9.8 3 8 3z"/>',
+    veneer: '<path d="M6 4h12v8.5a6 6 0 0 1-12 0z"/><path d="M10 4v9M14 4v9"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+    implant: '<path d="M8 3.5h8c1 0 1.5.8 1.2 1.8L16 9H8L6.8 5.3C6.5 4.3 7 3.5 8 3.5z"/><path d="M9 9h6l-.6 9.5L12 21.5l-2.4-3z"/><path d="M9.2 12h5.6M9.4 15h5.2"/>',
+    smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.6 2.4 2.4 4 2.4s3-.8 4-2.4"/><path d="M9 9.5h.01M15 9.5h.01"/>',
+    sparkle: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+    shield: '<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8-7.5 9.5-4.3-1.5-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5L12 13l8.5-6.5"/>',
+    link: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>',
+    x: '<path d="M6 6l12 12M18 6L6 18"/>'
+  };
+  function icon(name) {
+    return '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (ICON_PATHS[name] || '') + '</svg>';
+  }
+
+  /* ---------- Niches (base prices in GBP for an average UK city) ---------- */
+  var NICHES = {
+    aesthetics: {
+      label: 'Aesthetics',
+      business: 'Aesthetics Clinic',
+      defaultName: 'Your Clinic',
+      accent: '#f472b6', accentLight: '#fbcfe8', accentDeep: '#be185d',
+      headline: ['Your treatment,', 'priced in seconds.'],
+      sub: 'Choose a treatment and package to see an instant guide price, then request your consultation in one tap.',
+      stepTreatment: 'Choose your treatment',
+      stepSize: 'Choose your package',
+      sizes: ['Single Area / 0.5ml', 'Standard / 1ml', 'Full Package / Multi-Area'],
+      treatments: [
+        { name: 'Anti-Wrinkle Injections (3 Areas)', icon: 'syringe', prices: [[150, 220], [230, 320], [320, 450]] },
+        { name: 'Lip & Dermal Fillers', icon: 'lips', prices: [[150, 220], [200, 320], [550, 950]] },
+        { name: 'Profhilo / Skin Boosters', icon: 'drop', prices: [[220, 300], [300, 420], [580, 850]] },
+        { name: 'Laser Hair Removal Course', icon: 'bolt', prices: [[270, 450], [480, 840], [1200, 2200]] },
+        { name: 'Microneedling & Exosomes', icon: 'dots', prices: [[160, 240], [260, 380], [650, 1000]] },
+        { name: 'Hydrafacial Platinum', icon: 'waves', prices: [[150, 190], [190, 260], [480, 690]] }
+      ],
+      included: ['In-depth consultation & skin assessment', 'Premium products, expertly administered', 'Personalised aftercare & review'],
+      fine: 'Guide estimate only. Your final price is confirmed at consultation, subject to suitability.',
+      notesPlaceholder: 'Areas you’d like to treat, previous treatments, any questions…',
+      ageGate: true,
+      noun: 'treatment',
+      clients: 'clients'
+    },
+    tattoo: {
+      label: 'Tattoo',
+      business: 'Tattoo Studio',
+      defaultName: 'Your Studio',
+      accent: '#f59e0b', accentLight: '#fde68a', accentDeep: '#b45309',
+      headline: ['Your next piece,', 'priced in seconds.'],
+      sub: 'Choose your style and session length to see an instant guide price, then request your consultation in one tap.',
+      stepTreatment: 'Choose your style',
+      stepSize: 'Choose your session',
+      sizes: ['Small (2-3 hrs)', 'Half Day (4 hrs)', 'Full Day Sitting (7-8 hrs)'],
+      treatments: [
+        { name: 'Fine Line / Minimalist Piece', icon: 'pen', prices: [[150, 300], [350, 520], [600, 900]] },
+        { name: 'Black & Grey Realism', icon: 'eye', prices: [[250, 400], [450, 650], [750, 1100]] },
+        { name: 'Half-Sleeve / Large Custom', icon: 'layers', prices: [[280, 420], [500, 700], [800, 1200]] },
+        { name: 'Full-Day Studio Sitting', icon: 'clock', prices: [[260, 400], [450, 640], [750, 1050]] },
+        { name: 'Cover-Up / Rework', icon: 'refresh', prices: [[280, 450], [480, 700], [800, 1200]] },
+        { name: 'Portrait / Detailed Piece', icon: 'portrait', prices: [[300, 460], [520, 750], [850, 1250]] }
+      ],
+      included: ['Custom design consultation', 'Stencil, setup & sterile single-use kit', 'Aftercare guidance'],
+      fine: 'Guide estimate only. Final price depends on size, placement and detail, and is confirmed at consultation.',
+      notesPlaceholder: 'Placement, approximate size, style references, colour or black & grey…',
+      ageGate: true,
+      noun: 'piece',
+      clients: 'clients'
+    },
+    dentist: {
+      label: 'Cosmetic Dentistry',
+      business: 'Cosmetic Dentistry',
+      defaultName: 'Your Practice',
+      accent: '#38bdf8', accentLight: '#bae6fd', accentDeep: '#0369a1',
+      headline: ['Your new smile,', 'priced in seconds.'],
+      sub: 'Choose a treatment and scope to see an instant guide price, then request your consultation in one tap.',
+      stepTreatment: 'Choose your treatment',
+      stepSize: 'Choose your scope',
+      sizes: ['Minor / 1-2 Teeth', 'Standard Arch (4-6 Teeth)', 'Full Dual Arch'],
+      treatments: [
+        { name: 'Invisalign Clear Aligners', icon: 'arch', prices: [[1500, 2500], [2500, 3800], [3500, 5500]] },
+        { name: 'Composite Bonding (Per Tooth / Smile)', icon: 'tooth', prices: [[250, 700], [1000, 2100], [3200, 6000]] },
+        { name: 'Porcelain Veneers', icon: 'veneer', prices: [[700, 2200], [3000, 6600], [10000, 18000]] },
+        { name: 'Professional Laser Whitening', icon: 'sun', prices: [[250, 400], [400, 650], [550, 900]] },
+        { name: 'Single Dental Implant', icon: 'implant', prices: [[2200, 3200], [6000, 12000], [18000, 32000]] },
+        { name: 'Full Smile Makeover', icon: 'smile', prices: [[3000, 6000], [8000, 14000], [16000, 30000]] }
+      ],
+      included: ['Full clinical assessment', 'Digital scan & personalised plan', 'Clear, itemised final quote'],
+      fine: 'Guide estimate only. Your final price is confirmed after a clinical assessment.',
+      notesPlaceholder: 'What you’d like to change, any dental anxiety, questions about payment options…',
+      ageGate: false,
+      noun: 'treatment',
+      clients: 'patients'
+    }
+  };
+
+  var NICHE_ALIASES = {
+    aesthetics: 'aesthetics', aesthetic: 'aesthetics', aesthetician: 'aesthetics', clinic: 'aesthetics', beauty: 'aesthetics', skin: 'aesthetics', skincare: 'aesthetics', medspa: 'aesthetics', medicalspa: 'aesthetics', injector: 'aesthetics', cosmetics: 'aesthetics',
+    tattoo: 'tattoo', tattoos: 'tattoo', tattooist: 'tattoo', tattoostudio: 'tattoo', studio: 'tattoo', ink: 'tattoo',
+    dentist: 'dentist', dentists: 'dentist', dental: 'dentist', dentistry: 'dentist', cosmeticdentist: 'dentist', cosmeticdentistry: 'dentist', orthodontist: 'dentist', orthodontics: 'dentist', smile: 'dentist'
+  };
+
+  /* ---------- Local price multipliers (relative to each country's average) ---------- */
+  var CITY_MULT = {
+    uk: {
+      'london': 1.35, 'manchester': 1.1, 'birmingham': 1.05, 'leeds': 1.05, 'liverpool': 1.0, 'bristol': 1.12,
+      'edinburgh': 1.12, 'glasgow': 1.02, 'cardiff': 1.0, 'newcastle': 0.97, 'sheffield': 0.96, 'nottingham': 0.98,
+      'leicester': 0.96, 'coventry': 0.95, 'brighton': 1.15, 'oxford': 1.18, 'cambridge': 1.18, 'reading': 1.12,
+      'bath': 1.12, 'guildford': 1.18, 'st albans': 1.18, 'windsor': 1.2, 'cheltenham': 1.1, 'harrogate': 1.1,
+      'york': 1.05, 'chester': 1.05, 'wilmslow': 1.2, 'alderley edge': 1.25, 'southampton': 1.0, 'portsmouth': 0.98,
+      'bournemouth': 1.02, 'exeter': 1.0, 'plymouth': 0.95, 'norwich': 0.98, 'milton keynes': 1.05, 'northampton': 0.97,
+      'derby': 0.95, 'stoke on trent': 0.9, 'wolverhampton': 0.94, 'bradford': 0.92, 'hull': 0.9, 'sunderland': 0.92,
+      'middlesbrough': 0.9, 'belfast': 0.95, 'aberdeen': 1.0, 'dundee': 0.93, 'swansea': 0.93, 'newport': 0.93,
+      'preston': 0.95, 'bolton': 0.94, 'stockport': 1.0, 'solihull': 1.08, 'chelmsford': 1.08, 'colchester': 1.0,
+      'ipswich': 0.97, 'peterborough': 0.96, 'luton': 0.98, 'watford': 1.12, 'swindon': 0.98, 'gloucester': 0.97,
+      'worcester': 0.98, 'lincoln': 0.94, 'doncaster': 0.92, 'huddersfield': 0.94, 'wakefield': 0.93, 'blackpool': 0.9,
+      'canterbury': 1.05, 'maidstone': 1.05, 'crawley': 1.05, 'winchester': 1.15, 'inverness': 0.98, 'stirling': 0.98
+    },
+    us: {
+      'new york': 1.45, 'manhattan': 1.55, 'brooklyn': 1.35, 'los angeles': 1.35, 'beverly hills': 1.55, 'santa monica': 1.45,
+      'orange county': 1.3, 'newport beach': 1.45, 'san francisco': 1.45, 'san jose': 1.3, 'san diego': 1.2, 'sacramento': 1.1,
+      'miami': 1.25, 'miami beach': 1.3, 'fort lauderdale': 1.15, 'boca raton': 1.2, 'palm beach': 1.35, 'west palm beach': 1.15,
+      'orlando': 1.0, 'tampa': 1.0, 'jacksonville': 0.95, 'seattle': 1.2, 'portland': 1.08, 'boston': 1.25, 'chicago': 1.15,
+      'washington': 1.2, 'philadelphia': 1.1, 'newark': 1.1, 'jersey city': 1.25, 'baltimore': 1.05, 'dallas': 1.05,
+      'fort worth': 1.0, 'houston': 1.05, 'austin': 1.12, 'san antonio': 0.95, 'el paso': 0.88, 'atlanta': 1.05,
+      'charlotte': 1.0, 'raleigh': 1.0, 'nashville': 1.05, 'memphis': 0.9, 'new orleans': 1.0, 'las vegas': 1.1,
+      'phoenix': 1.0, 'scottsdale': 1.15, 'tucson': 0.95, 'denver': 1.1, 'salt lake city': 1.0, 'minneapolis': 1.05,
+      'detroit': 0.95, 'kansas city': 0.95, 'st louis': 0.95, 'columbus': 0.95, 'indianapolis': 0.95, 'cleveland': 0.92,
+      'cincinnati': 0.93, 'pittsburgh': 0.95, 'milwaukee': 0.95, 'oklahoma city': 0.9, 'albuquerque': 0.92, 'honolulu': 1.25
+    }
+  };
+  var CITY_ALIASES = {
+    'la': 'los angeles', 'l a': 'los angeles', 'nyc': 'new york', 'ny': 'new york', 'new york city': 'new york',
+    'sf': 'san francisco', 'dc': 'washington', 'washington dc': 'washington', 'vegas': 'las vegas', 'philly': 'philadelphia',
+    'atl': 'atlanta', 'saint louis': 'st louis', 'nola': 'new orleans', 'slc': 'salt lake city',
+    'city of london': 'london', 'central london': 'london', 'greater london': 'london', 'greater manchester': 'manchester',
+    'newcastle upon tyne': 'newcastle', 'kingston upon hull': 'hull', 'brighton and hove': 'brighton', 'brighton hove': 'brighton',
+    'stoke': 'stoke on trent', 'saint albans': 'st albans'
+  };
+
+  /* ---------- Read URL parameters ---------- */
+  var qs;
+  try { qs = new URLSearchParams(window.location.search); } catch (e) { qs = { get: function () { return null; } }; }
+  function param(k) { var v = qs.get(k); return v == null ? '' : String(v); }
+  function clean(s, max) { return String(s == null ? '' : s).replace(/[\u0000-\u001F\u007F<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); }
+  var EMAIL_RE = /^[A-Za-z0-9._%+'-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+
+  var nicheKey = NICHE_ALIASES[param('niche').toLowerCase().replace(/[^a-z]/g, '')] || 'aesthetics';
+  var N = NICHES[nicheKey];
+
+  var nameParam = clean(param('name'), 60);
+  var clinicName = nameParam || N.defaultName;
+
+  var ccRaw = (param('cc') || param('country')).toLowerCase().replace(/[^a-z]/g, '');
+  var cemail = clean(param('cemail'), 120).replace(/ /g, '+').toLowerCase();
+  if (!EMAIL_RE.test(cemail)) cemail = '';
+  // Tolerate links built by older delivery flows that packed the email / country into ?services=
+  if (!cemail || !ccRaw) {
+    param('services').split(',').forEach(function (s) {
+      s = clean(s, 120).replace(/ /g, '+').toLowerCase();
+      if (!cemail && EMAIL_RE.test(s)) cemail = s;
+      else if (!ccRaw && /^(us|uk|gb)$/.test(s)) ccRaw = s;
+    });
+  }
+
+  var cityRaw = clean(param('city'), 48);
+  function cityKey(c) {
+    var k = c.split(',')[0].toLowerCase().replace(/\./g, '').replace(/[^a-z]+/g, ' ').trim();
+    return CITY_ALIASES.hasOwnProperty(k) ? CITY_ALIASES[k] : k;
+  }
+  function displayCity(raw) {
+    var c = raw.split(',')[0].trim();
+    if (!c) return '';
+    if (c === c.toLowerCase() || c === c.toUpperCase()) {
+      if (c.replace(/[^a-z]/gi, '').length <= 3) return c.toUpperCase();
+      return c.toLowerCase().replace(/(^|[\s\-.])([a-z])/g, function (m, p, l) { return p + l.toUpperCase(); });
+    }
+    return c;
+  }
+  var ck = cityKey(cityRaw);
+  var cityName = displayCity(cityRaw);
+  var cityLabel = cityName || 'your area';
+
+  var isUS;
+  if (/^(us|usa|unitedstates|unitedstatesofamerica|america)$/.test(ccRaw)) isUS = true;
+  else if (/^(uk|gb|gbr|unitedkingdom|greatbritain|britain|england|scotland|wales|northernireland)$/.test(ccRaw)) isUS = false;
+  else isUS = !!ck && CITY_MULT.us.hasOwnProperty(ck) && !CITY_MULT.uk.hasOwnProperty(ck);
+
+  var cityTable = isUS ? CITY_MULT.us : CITY_MULT.uk;
+  var cityMult = ck && cityTable.hasOwnProperty(ck) ? cityTable[ck] : 1;
+  var multOverride = parseFloat(param('mult'));
+  if (isFinite(multOverride) && multOverride > 0) cityMult = Math.min(2, Math.max(0.5, multOverride));
+  cityMult = Math.round(cityMult * 100) / 100;
+
+  var CUR = isUS ? { code: 'USD', locale: 'en-US', sym: '$' } : { code: 'GBP', locale: 'en-GB', sym: '£' };
+  var numFmt = null;
+  try { numFmt = new Intl.NumberFormat(CUR.locale, { style: 'currency', currency: CUR.code, minimumFractionDigits: 0, maximumFractionDigits: 0 }); } catch (e) { numFmt = null; }
+  function fmt(v) {
+    v = Math.round(v);
+    return numFmt ? numFmt.format(v) : CUR.sym + String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  var isDemo = !/^(0|false|no|off|live)$/i.test(param('demo').trim());
+
+  var webhookParam = param('webhook').trim();
+  var LEAD_WEBHOOK = /^https:\/\/[^\s"'<>]+$/i.test(webhookParam) ? webhookParam : DEFAULT_LEAD_WEBHOOK;
+
+  /* ---------- Pricing ---------- */
+  function roundNice(v) {
+    var step = v < 1000 ? 5 : v < 10000 ? 50 : 100;
+    return Math.max(step, Math.round(v / step) * step);
+  }
+  function priceFor(t, s) {
+    var r = N.treatments[t].prices[s];
+    var m = cityMult * (isUS ? US_MULT : 1);
+    var lo = roundNice(r[0] * m);
+    var hi = roundNice(r[1] * m);
+    if (hi <= lo) hi = roundNice(lo * 1.15);
+    return [lo, hi];
+  }
+
+  /* ---------- Stripe checkout link ---------- */
+  function toBase64Url(str) {
+    var bin = '';
+    if (typeof TextEncoder === 'function') {
+      var bytes = new TextEncoder().encode(str);
+      for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    } else {
+      bin = unescape(encodeURIComponent(str));
+    }
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function stripeReference() {
+    var n = nameParam, c = cityName, e = cemail;
+    function make() { return toBase64Url(JSON.stringify([n, c, nicheKey, cityMult, e, isUS ? 'us' : 'uk'])); }
+    var ref = make();
+    // Stripe ignores client_reference_id values over 200 characters, so trim long names / cities first
+    while (ref.length > 200 && n.length > 12) { n = n.slice(0, -3).trim(); ref = make(); }
+    while (ref.length > 200 && c.length > 4) { c = c.slice(0, -2).trim(); ref = make(); }
+    if (ref.length > 200) { e = ''; ref = make(); }
+    return ref;
+  }
+  function checkoutUrl() {
+    var url = STRIPE_LINK + (STRIPE_LINK.indexOf('?') === -1 ? '?' : '&') + 'client_reference_id=' + stripeReference();
+    if (cemail) url += '&prefilled_email=' + encodeURIComponent(cemail);
+    return url;
+  }
+
+  /* ---------- DOM helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function setText(id, s) { var el = $(id); if (el) el.textContent = s; }
+  function make(tag, cls, text) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text != null) el.textContent = text;
+    return el;
+  }
+  function iconEl(name) { var s = make('span'); s.innerHTML = icon(name); return s.firstChild; }
+  function hexToRgb(h) { var n = parseInt(h.replace('#', ''), 16); return ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255); }
+  function initials(s) {
+    var words = s.replace(/[^A-Za-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+    var core = words.filter(function (w) { return !/^(the|and|of|ltd|limited|llc|inc|co|clinic|studio|studios|practice|dental|dentistry|aesthetics|tattoo|tattoos)$/i.test(w); });
+    var w = core.length ? core : words;
+    var out = ((w[0] || '').charAt(0) + (w[1] || '').charAt(0)).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    return out || 'Q';
+  }
+  function todayISO() {
+    var d = new Date();
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  function prettyDate(iso) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return '';
+    var p = iso.split('-');
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    try { return d.toLocaleDateString(CUR.locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return iso; }
+  }
+
+  var root = document.documentElement;
+  var mq = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
+  var reducedMotion = mq('(prefers-reduced-motion: reduce)');
+  var coarsePointer = mq('(pointer: coarse)');
+
+  var demoBar = $('demoBar'), treatEl = $('treatments'), sizeEl = $('sizes'), side = $('side');
+  var resultEl = $('result'), resEmpty = $('resEmpty'), resBody = $('resBody');
+  var bookBtn = $('bookBtn'), form = $('leadForm'), submitBtn = $('submitBtn'), formErr = $('formErr');
+  var done = $('done'), mailBtn = $('mailBtn'), doneActivate = $('doneActivate');
+  var pitchEl = $('pitch'), dock = $('dock'), dockBtn = $('dockBtn');
+  var sheetWrap = $('sheet'), sheetPanel = $('sheetPanel'), checkoutBtn = $('checkoutBtn');
+  var toastEl = $('toast');
+
+  var state = { t: -1, s: 1, formOpen: false, sent: false };
+  var busy = false, sheetOpen = false, sheetTimer = null, lastFocus = null, autoSheetShown = false;
+  var shown = [0, 0], rafId = 0, toastTimer = null;
+  var inView = { result: false, pitch: false }, dockReady = false;
+
+  /* ---------- Theme + head ---------- */
+  root.style.setProperty('--accent', N.accent);
+  root.style.setProperty('--accent-rgb', hexToRgb(N.accent));
+  root.style.setProperty('--accent-light', N.accentLight);
+  root.style.setProperty('--accent-light-rgb', hexToRgb(N.accentLight));
+  root.style.setProperty('--accent-deep', N.accentDeep);
+  root.setAttribute('data-niche', nicheKey);
+  root.setAttribute('data-mode', isDemo ? 'demo' : 'live');
+  root.lang = isUS ? 'en-US' : 'en-GB';
+
+  document.title = isDemo ? clinicName + ' · Instant Quote Preview' : clinicName + ' · Instant ' + N.label + ' Quote';
+  var metaDesc = 'Get an instant ' + (cityName ? cityName + ' ' : '') + 'guide price from ' + clinicName + ' and request your consultation in seconds.';
+  var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', metaDesc);
+  var ogt = document.querySelector('meta[property="og:title"]'); if (ogt) ogt.setAttribute('content', clinicName + ' · Instant ' + N.label + ' Quote');
+  var ogd = document.querySelector('meta[property="og:description"]'); if (ogd) ogd.setAttribute('content', metaDesc);
+  if (isDemo) {
+    var robots = document.createElement('meta');
+    robots.name = 'robots';
+    robots.content = 'noindex, nofollow';
+    document.head.appendChild(robots);
+  }
+  var mono = initials(clinicName);
+  var favSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + N.accentLight + '"/><stop offset="1" stop-color="' + N.accentDeep + '"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="#0b0b10"/><rect x="3" y="3" width="58" height="58" rx="14" fill="none" stroke="url(#g)" stroke-width="3"/><text x="32" y="42" text-anchor="middle" font-family="Georgia,serif" font-size="' + (mono.length > 1 ? 26 : 32) + '" font-weight="700" fill="url(#g)">' + mono + '</text></svg>';
+  $('favicon').setAttribute('href', 'data:image/svg+xml,' + encodeURIComponent(favSvg));
+
+  /* ---------- Static icons ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-icon]'), function (el) { el.outerHTML = icon(el.getAttribute('data-icon')); });
+
+  /* ---------- Copy ---------- */
+  setText('mono', mono);
+  setText('eyebrow', N.business + (cityName ? ' · ' + cityName : ''));
+  setText('clinicName', clinicName);
+  setText('h1a', N.headline[0]);
+  setText('h1b', N.headline[1]);
+  setText('sub', N.sub);
+  setText('chipCity', cityName ? cityName + ' pricing' : 'Local pricing');
+  setText('t1', N.stepTreatment);
+  setText('t2', N.stepSize);
+  setText('resFine', N.fine);
+  setText('resLoc', (cityName ? cityName + ' ' : 'Local ') + 'guide price · ' + CUR.code);
+  setText('consentTxt', 'I agree to ' + clinicName + ' contacting me about this enquiry.');
+  setText('privacyTxt', 'Your details are only shared with ' + clinicName + '.');
+  $('fNotes').setAttribute('placeholder', N.notesPlaceholder);
+  $('fDate').setAttribute('min', todayISO());
+  $('ageRow').hidden = !N.ageGate;
+
+  var inclEl = $('incl');
+  N.included.forEach(function (txt) {
+    var li = make('li');
+    li.appendChild(iconEl('check'));
+    li.appendChild(make('span', null, txt));
+    inclEl.appendChild(li);
+  });
+
+  var year = new Date().getFullYear();
+  setText('footTxt', isDemo
+    ? 'Interactive preview for ' + clinicName + '. Guide prices reflect typical ' + cityLabel + ' ' + N.label.toLowerCase() + ' rates in ' + CUR.code + '.'
+    : '© ' + year + ' ' + clinicName + '. Prices shown are guide estimates for ' + cityLabel + ' and are confirmed at your consultation.');
+
+  /* ---------- Treatments + sizes ---------- */
+  N.treatments.forEach(function (t, i) {
+    var b = make('button', 'opt');
+    b.type = 'button';
+    b.setAttribute('data-i', String(i));
+    b.setAttribute('aria-pressed', 'false');
+    var ic = make('span', 'opt-ic'); ic.appendChild(iconEl(t.icon));
+    var from = make('span', 'opt-from', 'from ');
+    from.appendChild(make('b', null, fmt(priceFor(i, 0)[0])));
+    var ckEl = make('span', 'opt-ck'); ckEl.appendChild(iconEl('check'));
+    b.appendChild(ic);
+    b.appendChild(make('span', 'opt-name', t.name));
+    b.appendChild(from);
+    b.appendChild(ckEl);
+    treatEl.appendChild(b);
+  });
+  N.sizes.forEach(function (label, i) {
+    var b = make('button', 'size');
+    b.type = 'button';
+    b.setAttribute('data-i', String(i));
+    b.setAttribute('aria-pressed', 'false');
+    b.appendChild(make('span', 'radio'));
+    b.appendChild(make('span', 'size-l', label));
+    b.appendChild(make('span', 'size-p'));
+    sizeEl.appendChild(b);
+  });
+
+  /* ---------- Price animation ---------- */
+  function renderPrice(lo, hi) { setText('pLow', fmt(lo)); setText('pHigh', fmt(hi)); }
+  function animatePrice(lo, hi, animate) {
+    if (rafId) cancelAnimationFrame(rafId);
+    if (!animate || reducedMotion || typeof requestAnimationFrame !== 'function') { shown = [lo, hi]; renderPrice(lo, hi); return; }
+    var from = shown.slice(), start = 0, dur = 650;
+    function step(now) {
+      if (!start) start = now;
+      var t = Math.min(1, (now - start) / dur);
+      var e = 1 - Math.pow(1 - t, 3);
+      shown = [from[0] + (lo - from[0]) * e, from[1] + (hi - from[1]) * e];
+      if (t < 1) { renderPrice(shown[0], shown[1]); rafId = requestAnimationFrame(step); }
+      else { shown = [lo, hi]; renderPrice(lo, hi); rafId = 0; }
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  /* ---------- Main render ---------- */
+  function update(animate) {
+    var i, opts = treatEl.children, sizes = sizeEl.children, has = state.t >= 0;
+    for (i = 0; i < opts.length; i++) {
+      opts[i].classList.toggle('on', i === state.t);
+      opts[i].setAttribute('aria-pressed', i === state.t ? 'true' : 'false');
+    }
+    for (i = 0; i < sizes.length; i++) {
+      sizes[i].classList.toggle('on', i === state.s);
+      sizes[i].setAttribute('aria-pressed', i === state.s ? 'true' : 'false');
+      var r = has ? priceFor(state.t, i) : null;
+      sizes[i].querySelector('.size-p').textContent = r ? fmt(r[0]) + '–' + fmt(r[1]) : '';
+    }
+    resEmpty.hidden = has;
+    resBody.hidden = !has;
+    bookBtn.classList.toggle('idle', !has);
+    if (has) {
+      var t = N.treatments[state.t], size = N.sizes[state.s], pr = priceFor(state.t, state.s);
+      setText('resName', t.name);
+      setText('resSize', size);
+      animatePrice(pr[0], pr[1], animate);
+      setText('srPrice', 'Estimate for ' + t.name + ', ' + size + ': ' + fmt(pr[0]) + ' to ' + fmt(pr[1]) + '.');
+      setText('dockName', t.name + ' · ' + size);
+      setText('dockPrice', fmt(pr[0]) + ' – ' + fmt(pr[1]));
+      setText('sumTxt', t.name + ' · ' + size);
+      setText('sumPrice', fmt(pr[0]) + ' – ' + fmt(pr[1]));
+      if (animate) { resBody.classList.remove('pop'); void resBody.offsetWidth; resBody.classList.add('pop'); }
+    }
+    updateDock();
+  }
+
+  function select(kind, idx) {
+    if (kind === 't') state.t = idx; else state.s = idx;
+    if (state.sent) {
+      state.sent = false;
+      done.hidden = true;
+      bookBtn.hidden = false;
+      side.classList.remove('static');
+    }
+    update(true);
+  }
+
+  treatEl.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.opt') : null;
+    if (b) select('t', +b.getAttribute('data-i'));
+  });
+  sizeEl.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.size') : null;
+    if (b) select('s', +b.getAttribute('data-i'));
+  });
+
+  /* ---------- Toast + scrolling ---------- */
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2600);
+  }
+  function scrollToEl(el, block) {
+    try { el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: block || 'start' }); }
+    catch (e) { el.scrollIntoView(); }
+  }
+
+  /* ---------- Booking form ---------- */
+  function openForm() {
+    if (state.t < 0) {
+      toast('Choose a ' + N.noun + ' first');
+      treatEl.classList.remove('shake'); void treatEl.offsetWidth; treatEl.classList.add('shake');
+      scrollToEl($('stepTreat'));
+      return;
+    }
+    state.formOpen = true;
+    form.hidden = false;
+    bookBtn.hidden = true;
+    side.classList.add('static');
+    updateDock();
+    setTimeout(function () {
+      scrollToEl(form);
+      if (!coarsePointer) setTimeout(function () { try { $('fName').focus({ preventScroll: true }); } catch (e) { $('fName').focus(); } }, reducedMotion ? 0 : 450);
+    }, 30);
+  }
+  bookBtn.addEventListener('click', openForm);
+  dockBtn.addEventListener('click', function () { if (state.formOpen) scrollToEl(form); else openForm(); });
+
+  function fieldWrap(id) { var el = $(id); return el ? (el.closest('.fld') || el.closest('.chk')) : null; }
+  function clearBad() {
+    Array.prototype.forEach.call(form.querySelectorAll('.bad'), function (el) { el.classList.remove('bad'); });
+    Array.prototype.forEach.call(form.querySelectorAll('[aria-invalid]'), function (el) { el.removeAttribute('aria-invalid'); });
+  }
+  form.addEventListener('input', function (e) {
+    var w = e.target.closest ? (e.target.closest('.fld') || e.target.closest('.chk')) : null;
+    if (w && w.classList.contains('bad')) { w.classList.remove('bad'); e.target.removeAttribute('aria-invalid'); }
+  });
+  form.addEventListener('change', function (e) {
+    var w = e.target.closest ? e.target.closest('.chk') : null;
+    if (w && w.classList.contains('bad')) { w.classList.remove('bad'); e.target.removeAttribute('aria-invalid'); }
+  });
+
+  function validate() {
+    clearBad();
+    formErr.textContent = '';
+    var v = {
+      name: clean($('fName').value, 80),
+      phone: clean($('fPhone').value, 30),
+      email: clean($('fEmail').value, 120).toLowerCase(),
+      date: $('fDate').value || '',
+      time: $('fTime').value || '',
+      notes: String($('fNotes').value || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim().slice(0, 1000),
+      age: N.ageGate ? $('fAge').checked : null,
+      consent: $('fConsent').checked
+    };
+    var digits = v.phone.replace(/\D/g, '').length;
+    var bad = [];
+    if (v.name.length < 2) bad.push(['fName', 'Please enter your name.']);
+    if (digits < 7 || digits > 15) bad.push(['fPhone', 'Please enter a valid phone number.']);
+    if (!EMAIL_RE.test(v.email)) bad.push(['fEmail', 'Please enter a valid email address.']);
+    if (v.date && v.date < todayISO()) bad.push(['fDate', 'Please choose a date from today onwards.']);
+    if (N.ageGate && !v.age) bad.push(['fAge', 'Please confirm you are 18 or over.']);
+    if (!v.consent) bad.push(['fConsent', 'Please tick to agree to be contacted about your enquiry.']);
+    if (bad.length) {
+      bad.forEach(function (b) { var w = fieldWrap(b[0]); if (w) w.classList.add('bad'); $(b[0]).setAttribute('aria-invalid', 'true'); });
+      formErr.textContent = bad[0][1];
+      try { $(bad[0][0]).focus({ preventScroll: true }); } catch (e) { $(bad[0][0]).focus(); }
+      scrollToEl(fieldWrap(bad[0][0]) || form, 'center');
+      return null;
+    }
+    return v;
+  }
+
+  function buildPayload(v) {
+    var t = N.treatments[state.t], pr = priceFor(state.t, state.s);
+    var pref = [v.date ? prettyDate(v.date) : '', v.time].filter(Boolean).join(', ');
+    var notes = [pref ? 'Preferred: ' + pref : '', v.notes].filter(Boolean).join('\n');
+    return {
+      clinic: { name: clinicName, city: cityName, niche: nicheKey, email: cemail },
+      client: { name: v.name, phone: v.phone, email: v.email, notes: notes },
+      estimate: { treatment: t.name, size: N.sizes[state.s], low: pr[0], high: pr[1], currency: CUR.code },
+      meta: {
+        preferred_date: v.date,
+        preferred_time: v.time,
+        age_confirmed: N.ageGate ? true : null,
+        consent: true,
+        submitted_at: new Date().toISOString(),
+        page: window.location.origin + window.location.pathname
+      }
+    };
+  }
+
+  function mailtoHref(p) {
+    var subject = 'Consultation request: ' + p.estimate.treatment + ' (' + p.client.name + ')';
+    var lines = [
+      'Hi ' + p.clinic.name + ',',
+      '',
+      'I would like to request a consultation.',
+      '',
+      'Treatment: ' + p.estimate.treatment,
+      'Option: ' + p.estimate.size,
+      'Guide estimate: ' + fmt(p.estimate.low) + ' – ' + fmt(p.estimate.high),
+      '',
+      'Name: ' + p.client.name,
+      'Phone: ' + p.client.phone,
+      'Email: ' + p.client.email
+    ];
+    if (p.client.notes) lines.push('', p.client.notes);
+    lines.push('', 'Thank you,', p.client.name);
+    return 'mailto:' + p.clinic.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+  }
+
+  function postLead(payload) {
+    var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, REQUEST_TIMEOUT_MS);
+    var opts = { method: 'POST', mode: 'cors', credentials: 'omit', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) };
+    if (ctrl) opts.signal = ctrl.signal;
+    return fetch(LEAD_WEBHOOK, opts).then(function (res) {
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('Webhook responded ' + res.status);
+      return res;
+    }, function (err) {
+      clearTimeout(timer);
+      throw err;
+    });
+  }
+
+  function setBusy(b) {
+    busy = b;
+    submitBtn.disabled = b;
+    submitBtn.setAttribute('aria-busy', b ? 'true' : 'false');
+    submitBtn.innerHTML = b ? '<span class="spin" aria-hidden="true"></span><span>Sending…</span>' : 'Send My Request →';
+  }
+
+  function recapRow(label, value) {
+    var row = make('div');
+    row.appendChild(make('span', null, label));
+    row.appendChild(make('b', null, value));
+    return row;
+  }
+
+  function showDone(kind, v, payload) {
+    var t = N.treatments[state.t], pr = priceFor(state.t, state.s);
+    var first = v && v.name ? v.name.split(' ')[0] : '';
+    state.sent = true;
+    state.formOpen = false;
+    form.hidden = true;
+    bookBtn.hidden = true;
+    mailBtn.hidden = true;
+    doneActivate.hidden = true;
+    $('doneIc').innerHTML = icon(kind === 'mail' || kind === 'mail-auto' ? 'mail' : 'check');
+
+    if (kind === 'demo') {
+      setText('doneTitle', 'That’s a new lead.');
+      setText('doneMsg', 'In live mode, ' + clinicName + ' gets this request instantly' + (cemail ? ' at ' + cemail : ' by email') + ', with the ' + (N.clients === 'patients' ? 'patient' : 'client') + '’s name, number, ' + N.noun + ' and budget range.');
+      doneActivate.textContent = 'Activate for ' + clinicName + ' →';
+      doneActivate.hidden = false;
+    } else if (kind === 'mail-auto') {
+      setText('doneTitle', 'One last step');
+      setText('doneMsg', 'Your email app should now be open with your request ready to send to ' + clinicName + '. Just press send. If it didn’t open, tap below.');
+      mailBtn.href = mailtoHref(payload);
+      mailBtn.hidden = false;
+    } else if (kind === 'mail') {
+      setText('doneTitle', 'Almost there');
+      setText('doneMsg', 'We couldn’t send your request automatically. Tap below to email it to ' + clinicName + '. Everything is already filled in.');
+      mailBtn.href = mailtoHref(payload);
+      mailBtn.hidden = false;
+    } else {
+      setText('doneTitle', 'Request sent');
+      setText('doneMsg', 'Thank you' + (first ? ', ' + first : '') + '. ' + clinicName + ' has your request and will be in touch shortly to arrange your consultation.');
+    }
+
+    var recap = $('recap');
+    recap.textContent = '';
+    recap.appendChild(recapRow(N.noun.charAt(0).toUpperCase() + N.noun.slice(1), t.name));
+    recap.appendChild(recapRow('Option', N.sizes[state.s]));
+    recap.appendChild(recapRow('Guide estimate', fmt(pr[0]) + ' – ' + fmt(pr[1])));
+
+    done.hidden = false;
+    side.classList.add('static');
+    updateDock();
+    setTimeout(function () {
+      scrollToEl(done, 'center');
+      try { done.focus({ preventScroll: true }); } catch (e) { done.focus(); }
+    }, 30);
+
+    if (kind === 'demo' && !autoSheetShown) {
+      autoSheetShown = true;
+      setTimeout(function () { if (!sheetOpen && state.sent) openSheet(); }, 1800);
+    }
+  }
+
+  function openMail(href) {
+    var a = document.createElement('a');
+    a.href = href;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 0);
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (busy) return;
+    if ($('fHp').value) { showDone('sent', null, null); return; } // bot trap: pretend success, send nothing
+    var v = validate();
+    if (!v) return;
+    var payload = buildPayload(v);
+
+    if (isDemo) {
+      setBusy(true);
+      setTimeout(function () { setBusy(false); showDone('demo', v, payload); }, 900);
+      return;
+    }
+    if (!LEAD_WEBHOOK) {
+      if (cemail) { openMail(mailtoHref(payload)); showDone('mail-auto', v, payload); }
+      else formErr.textContent = 'Online requests aren’t available right now. Please contact ' + clinicName + ' directly.';
+      return;
+    }
+    setBusy(true);
+    postLead(payload).then(function () {
+      setBusy(false);
+      showDone('sent', v, payload);
+    }).catch(function () {
+      setBusy(false);
+      if (cemail) showDone('mail', v, payload);
+      else formErr.textContent = 'We couldn’t send your request. Please check your connection and try again.';
+    });
+  });
+
+  $('againBtn').addEventListener('click', function () {
+    state.sent = false;
+    state.formOpen = false;
+    form.reset();
+    clearBad();
+    formErr.textContent = '';
+    done.hidden = true;
+    form.hidden = true;
+    bookBtn.hidden = false;
+    side.classList.remove('static');
+    updateDock();
+    scrollToEl($('stepTreat'));
+  });
+
+  /* ---------- Sticky estimate dock (mobile) ---------- */
+  function updateDock() {
+    var show = dockReady && state.t >= 0 && !state.sent && !inView.result && !inView.pitch && !sheetOpen && window.innerWidth < 960;
+    dock.classList.toggle('show', show);
+    dock.setAttribute('aria-hidden', show ? 'false' : 'true');
+    dockBtn.tabIndex = show ? 0 : -1;
+  }
+  if ('IntersectionObserver' in window) {
+    dockReady = true;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { inView[en.target.id] = en.isIntersecting; });
+      updateDock();
+    }, { rootMargin: '0px 0px -90px 0px', threshold: 0 });
+    io.observe(resultEl);
+    if (isDemo) io.observe(pitchEl);
+  }
+
+  function measureBar() {
+    var h = isDemo && !demoBar.hidden ? demoBar.offsetHeight : 0;
+    root.style.setProperty('--bar-h', h + 'px');
+  }
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { measureBar(); updateDock(); }, 120);
+  });
+
+  /* ---------- Demo mode: pitch, checkout sheet ---------- */
+  function openSheet() {
+    if (!isDemo || sheetOpen) return;
+    clearTimeout(sheetTimer);
+    sheetOpen = true;
+    lastFocus = document.activeElement;
+    sheetWrap.hidden = false;
+    document.body.classList.add('lock');
+    void sheetWrap.offsetWidth;
+    sheetWrap.classList.add('open');
+    updateDock();
+    setTimeout(function () { try { $('sheetClose').focus({ preventScroll: true }); } catch (e) { $('sheetClose').focus(); } }, 60);
+  }
+  function closeSheet() {
+    if (!sheetOpen) return;
+    sheetOpen = false;
+    sheetWrap.classList.remove('open');
+    document.body.classList.remove('lock');
+    sheetPanel.style.transform = '';
+    sheetPanel.style.transition = '';
+    sheetTimer = setTimeout(function () { sheetWrap.hidden = true; }, 460);
+    updateDock();
+    if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
+  }
+
+  if (isDemo) {
+    demoBar.hidden = false;
+    pitchEl.hidden = false;
+    setText('barName', clinicName);
+
+    $('demoNote').hidden = false;
+    setText('demoNoteTxt', 'Preview: this is exactly what your ' + N.clients + ' see. In live mode, requests go straight to ' + (cemail || 'your inbox') + '.');
+
+    setText('pitchEyebrow', 'Made for ' + clinicName);
+    setText('pitchSub', 'Your ' + N.clients + ' get an instant ' + cityLabel + ' price the moment they’re interested, then request a consultation in one tap. No DMs, no back-and-forth, no missed enquiries at 11pm.');
+    var ticks = $('pitchTicks');
+    [
+      'Pre-qualified leads: every request includes the ' + N.noun + ', option and budget range.',
+      'Delivered to ' + (cemail || 'your inbox') + ' the moment it’s sent, day or night.',
+      'One link for your Instagram & TikTok bio, Google profile and website.',
+      'Branded for ' + clinicName + ' with ' + cityLabel + ' pricing in ' + CUR.sym + '.'
+    ].forEach(function (txt) {
+      var li = make('li');
+      li.appendChild(iconEl('check'));
+      li.appendChild(make('span', null, txt));
+      ticks.appendChild(li);
+    });
+    setText('igMono', mono);
+    var handle = clinicName.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9._]+/g, '').slice(0, 26);
+    setText('igHandle', '@' + (handle || 'yourclinic'));
+    setText('igBio', N.business + (cityName ? ' · ' + cityName : ''));
+    setText('pitchBtn', 'Activate for ' + clinicName + ' →');
+
+    setText('sheetTitle', clinicName + '’s 24/7 Booking Funnel');
+    setText('sheetSub', 'An instant-quote page that turns Instagram views into consultation requests, even while you sleep.');
+    setText('howLive', 'Add the link to your Instagram bio and website. Consultation requests land in ' + (cemail || 'your inbox') + '.');
+    var tags = $('sheetTags');
+    [
+      ['sparkle', N.label + ' menu'],
+      ['pin', cityLabel.charAt(0).toUpperCase() + cityLabel.slice(1) + ' pricing in ' + CUR.sym],
+      ['mail', 'Leads to your inbox'],
+      ['shield', 'Mobile-first design']
+    ].forEach(function (tg) {
+      var li = make('li');
+      li.appendChild(iconEl(tg[0]));
+      li.appendChild(make('span', null, tg[1]));
+      tags.appendChild(li);
+    });
+    checkoutBtn.href = checkoutUrl();
+    setText('sheetPrice', PRICE_LABEL);
+    setText('pitchFine', 'One-off ' + PRICE_LABEL + (isUS ? ' (charged in US dollars at checkout)' : '') + ' · Secure Stripe checkout · Automatic delivery');
+    setText('sheetFine', isUS
+      ? 'Secure checkout by Stripe. You will see the exact price in US dollars before you pay. No calls, no setup.'
+      : 'Secure checkout by Stripe. Outside the UK, checkout shows the exact price in your local currency. No calls, no setup.');
+
+    demoBar.addEventListener('click', openSheet);
+    $('pitchBtn').addEventListener('click', openSheet);
+    doneActivate.addEventListener('click', openSheet);
+    sheetWrap.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-close]')) closeSheet();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!sheetOpen) return;
+      if (e.key === 'Escape') { closeSheet(); return; }
+      if (e.key !== 'Tab') return;
+      var f = sheetPanel.querySelectorAll('a[href], button:not([disabled])');
+      if (!f.length) return;
+      var firstEl = f[0], lastEl = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) { e.preventDefault(); lastEl.focus(); }
+      else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
+    });
+
+    // Swipe down to dismiss (phone-width bottom sheet only)
+    var y0 = null, dy = 0;
+    sheetPanel.addEventListener('touchstart', function (e) {
+      if (window.innerWidth >= 640 || sheetPanel.scrollTop > 0) { y0 = null; return; }
+      y0 = e.touches[0].clientY; dy = 0;
+      sheetPanel.style.transition = 'none';
+    }, { passive: true });
+    sheetPanel.addEventListener('touchmove', function (e) {
+      if (y0 == null) return;
+      dy = Math.max(0, e.touches[0].clientY - y0);
+      sheetPanel.style.transform = dy ? 'translateY(' + dy + 'px)' : '';
+    }, { passive: true });
+    sheetPanel.addEventListener('touchend', function () {
+      if (y0 == null) return;
+      sheetPanel.style.transition = '';
+      sheetPanel.style.transform = '';
+      if (dy > 90) closeSheet();
+      y0 = null; dy = 0;
+    });
+    checkoutBtn.addEventListener('click', function () { checkoutBtn.href = checkoutUrl(); });
+  }
+
+  measureBar();
+  update(false);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureBar);
+})();
+</script>
+</body>
+</html>
