@@ -455,7 +455,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
        name      Clinic / studio name
        city      City name (UK + US local price multipliers)
        niche     aesthetics | tattoo | dentist
-       cc        uk (GBP) | us (USD at 1.4x)          alias: country
+       cc        uk (GBP) | us (USD at 1.4x) | ie (EUR) | au (AUD) | nz (NZD) | ca (CAD)   alias: country
        cemail    Clinic's own email; client requests are routed to it
        demo      0 = Live Client Mode (anything else / absent = Prospect Demo Mode)
        webhook   Optional https:// override for the n8n lead-router webhook
@@ -620,6 +620,41 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       'cincinnati': 0.93, 'pittsburgh': 0.95, 'milwaukee': 0.95, 'oklahoma city': 0.9, 'albuquerque': 0.92, 'honolulu': 1.25
     }
   };
+  CITY_MULT.ie = {
+    'dublin': 1.15, 'dun laoghaire': 1.2, 'cork': 1.0, 'galway': 1.0, 'limerick': 0.95, 'waterford': 0.95,
+    'kilkenny': 0.95, 'drogheda': 0.95, 'dundalk': 0.95, 'swords': 1.05, 'bray': 1.05, 'navan': 0.95
+  };
+  CITY_MULT.au = {
+    'sydney': 1.15, 'melbourne': 1.1, 'brisbane': 1.0, 'perth': 1.05, 'adelaide': 0.95, 'gold coast': 1.05,
+    'canberra': 1.0, 'hobart': 0.95, 'darwin': 1.0, 'sunshine coast': 1.0, 'geelong': 0.95, 'wollongong': 0.95
+  };
+  CITY_MULT.nz = {
+    'auckland': 1.1, 'wellington': 1.05, 'christchurch': 0.95, 'hamilton': 0.95, 'tauranga': 1.0,
+    'dunedin': 0.92, 'queenstown': 1.15, 'napier': 0.95, 'nelson': 0.95
+  };
+  CITY_MULT.ca = {
+    'toronto': 1.15, 'vancouver': 1.2, 'montreal': 1.0, 'calgary': 1.05, 'ottawa': 1.0, 'edmonton': 0.95,
+    'winnipeg': 0.92, 'halifax': 0.95, 'victoria': 1.05, 'mississauga': 1.1, 'quebec city': 0.95, 'kelowna': 1.0
+  };
+
+  /* ---------- Countries: currency and local price level (UK prices in GBP = 1) ---------- */
+  var COUNTRIES = {
+    uk: { code: 'GBP', locale: 'en-GB', sym: '£', level: 1, name: 'pounds' },
+    us: { code: 'USD', locale: 'en-US', sym: '$', level: US_MULT, name: 'US dollars' },
+    ie: { code: 'EUR', locale: 'en-IE', sym: '€', level: 1.2, name: 'euros' },
+    au: { code: 'AUD', locale: 'en-AU', sym: 'A$', level: 1.95, name: 'Australian dollars' },
+    nz: { code: 'NZD', locale: 'en-NZ', sym: 'NZ$', level: 2.05, name: 'NZ dollars' },
+    ca: { code: 'CAD', locale: 'en-CA', sym: 'C$', level: 1.75, name: 'Canadian dollars' }
+  };
+  var COUNTRY_ALIASES = {
+    uk: 'uk', gb: 'uk', gbr: 'uk', unitedkingdom: 'uk', greatbritain: 'uk', britain: 'uk', england: 'uk', scotland: 'uk', wales: 'uk', northernireland: 'uk',
+    us: 'us', usa: 'us', unitedstates: 'us', unitedstatesofamerica: 'us', america: 'us',
+    ie: 'ie', irl: 'ie', ireland: 'ie', eire: 'ie', republicofireland: 'ie',
+    au: 'au', aus: 'au', australia: 'au',
+    nz: 'nz', nzl: 'nz', newzealand: 'nz', aotearoa: 'nz',
+    ca: 'ca', can: 'ca', canada: 'ca'
+  };
+
   var CITY_ALIASES = {
     'la': 'los angeles', 'l a': 'los angeles', 'nyc': 'new york', 'ny': 'new york', 'new york city': 'new york',
     'sf': 'san francisco', 'dc': 'washington', 'washington dc': 'washington', 'vegas': 'las vegas', 'philly': 'philadelphia',
@@ -650,7 +685,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     param('services').split(',').forEach(function (s) {
       s = clean(s, 120).replace(/ /g, '+').toLowerCase();
       if (!cemail && EMAIL_RE.test(s)) cemail = s;
-      else if (!ccRaw && /^(us|uk|gb)$/.test(s)) ccRaw = s;
+      else if (!ccRaw && /^(us|uk|gb|ie|au|nz|ca)$/.test(s)) ccRaw = s;
     });
   }
 
@@ -672,18 +707,22 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   var cityName = displayCity(cityRaw);
   var cityLabel = cityName || 'your area';
 
-  var isUS;
-  if (/^(us|usa|unitedstates|unitedstatesofamerica|america)$/.test(ccRaw)) isUS = true;
-  else if (/^(uk|gb|gbr|unitedkingdom|greatbritain|britain|england|scotland|wales|northernireland)$/.test(ccRaw)) isUS = false;
-  else isUS = !!ck && CITY_MULT.us.hasOwnProperty(ck) && !CITY_MULT.uk.hasOwnProperty(ck);
+  // Country: from ?cc= / ?country=, otherwise worked out from the city, otherwise UK
+  var country = COUNTRY_ALIASES[ccRaw] || '';
+  if (!country) {
+    if (ck && CITY_MULT.uk.hasOwnProperty(ck)) country = 'uk';
+    else ['us', 'ie', 'au', 'nz', 'ca'].forEach(function (c) { if (!country && ck && CITY_MULT[c].hasOwnProperty(ck)) country = c; });
+    if (!country) country = 'uk';
+  }
 
-  var cityTable = isUS ? CITY_MULT.us : CITY_MULT.uk;
+  var cityTable = CITY_MULT[country];
   var cityMult = ck && cityTable.hasOwnProperty(ck) ? cityTable[ck] : 1;
   var multOverride = parseFloat(param('mult'));
   if (isFinite(multOverride) && multOverride > 0) cityMult = Math.min(2, Math.max(0.5, multOverride));
   cityMult = Math.round(cityMult * 100) / 100;
 
-  var CUR = isUS ? { code: 'USD', locale: 'en-US', sym: '$' } : { code: 'GBP', locale: 'en-GB', sym: '£' };
+  var CUR = COUNTRIES[country];
+  var curLabel = CUR.code === 'GBP' ? '£' : CUR.code === 'USD' ? '$' : CUR.code;
   var numFmt = null;
   try { numFmt = new Intl.NumberFormat(CUR.locale, { style: 'currency', currency: CUR.code, minimumFractionDigits: 0, maximumFractionDigits: 0 }); } catch (e) { numFmt = null; }
   function fmt(v) {
@@ -703,7 +742,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   }
   function priceFor(t, s) {
     var r = N.treatments[t].prices[s];
-    var m = cityMult * (isUS ? US_MULT : 1);
+    var m = cityMult * CUR.level;
     var lo = roundNice(r[0] * m);
     var hi = roundNice(r[1] * m);
     if (hi <= lo) hi = roundNice(lo * 1.15);
@@ -723,7 +762,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   }
   function stripeReference() {
     var n = nameParam, c = cityName, e = cemail;
-    function make() { return toBase64Url(JSON.stringify([n, c, nicheKey, cityMult, e, isUS ? 'us' : 'uk'])); }
+    function make() { return toBase64Url(JSON.stringify([n, c, nicheKey, cityMult, e, country])); }
     var ref = make();
     // Stripe ignores client_reference_id values over 200 characters, so trim long names / cities first
     while (ref.length > 200 && n.length > 12) { n = n.slice(0, -3).trim(); ref = make(); }
@@ -793,7 +832,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   root.style.setProperty('--accent-deep', N.accentDeep);
   root.setAttribute('data-niche', nicheKey);
   root.setAttribute('data-mode', isDemo ? 'demo' : 'live');
-  root.lang = isUS ? 'en-US' : 'en-GB';
+  root.lang = CUR.locale;
 
   document.title = isDemo ? clinicName + ' · Instant Quote Preview' : clinicName + ' · Instant ' + N.label + ' Quote';
   var metaDesc = 'Get an instant ' + (cityName ? cityName + ' ' : '') + 'guide price from ' + clinicName + ' and request your consultation in seconds.';
@@ -1255,7 +1294,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       'Pre-qualified leads: every request includes the ' + N.noun + ', option and budget range.',
       'Delivered to ' + (cemail || 'your inbox') + ' the moment it’s sent, day or night.',
       'One link for your Instagram & TikTok bio, Google profile and website.',
-      'Branded for ' + clinicName + ' with ' + cityLabel + ' pricing in ' + CUR.sym + '.'
+      'Branded for ' + clinicName + ' with ' + cityLabel + ' pricing in ' + curLabel + '.'
     ].forEach(function (txt) {
       var li = make('li');
       li.appendChild(iconEl('check'));
@@ -1274,7 +1313,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     var tags = $('sheetTags');
     [
       ['sparkle', N.label + ' menu'],
-      ['pin', cityLabel.charAt(0).toUpperCase() + cityLabel.slice(1) + ' pricing in ' + CUR.sym],
+      ['pin', cityLabel.charAt(0).toUpperCase() + cityLabel.slice(1) + ' pricing in ' + curLabel],
       ['mail', 'Leads to your inbox'],
       ['shield', 'Mobile-first design']
     ].forEach(function (tg) {
@@ -1285,9 +1324,9 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     });
     checkoutBtn.href = checkoutUrl();
     setText('sheetPrice', PRICE_LABEL);
-    setText('pitchFine', 'One-off ' + PRICE_LABEL + (isUS ? ' (charged in US dollars at checkout)' : '') + ' · Secure Stripe checkout · Automatic delivery');
-    setText('sheetFine', isUS
-      ? 'Secure checkout by Stripe. You will see the exact price in US dollars before you pay. No calls, no setup.'
+    setText('pitchFine', 'One-off ' + PRICE_LABEL + (country !== 'uk' ? ' (charged in ' + CUR.name + ' at checkout)' : '') + ' · Secure Stripe checkout · Automatic delivery');
+    setText('sheetFine', country !== 'uk'
+      ? 'Secure checkout by Stripe. You will see the exact price in ' + CUR.name + ' before you pay. No calls, no setup.'
       : 'Secure checkout by Stripe. Outside the UK, checkout shows the exact price in your local currency. No calls, no setup.');
 
     demoBar.addEventListener('click', openSheet);
