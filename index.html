@@ -520,7 +520,7 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
       <li><div><b>Live 24/7</b><span id="howLive">Add the link to your Instagram bio and website. Consultation requests land in your inbox.</span></div></li>
     </ol>
     <ul class="tags" id="sheetTags"></ul>
-    <a class="cta" id="checkoutBtn" href="https://buy.stripe.com/cNi6oI9SZemEfVqcCVbAs02" target="_top" rel="noopener">Continue to Secure Checkout →</a>
+    <a class="cta" id="checkoutBtn" href="https://buy.stripe.com/3cIeVe2qx3I0aB646pbAs09" target="_top" rel="noopener">Continue to Secure Checkout →</a>
     <p class="fine"><span data-icon="lock"></span><span id="sheetFine">Payments processed securely by Stripe. No calls, no setup.</span></p>
   </div>
 </div>
@@ -551,8 +551,10 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
        edit      The owner's private token (with id): opens the price editor above a live preview
      ========================================================================== */
 
-  // £197.99 one-off. Stripe Adaptive Pricing converts it to the buyer's local currency at checkout.
-  var STRIPE_LINK = 'https://buy.stripe.com/cNi6oI9SZemEfVqcCVbAs02';
+  // AiEngineered payment link: £197 setup + £49/month (shared with the trades calculator; n8n routes by niche).
+  // Stripe Adaptive Pricing can show it in the buyer's local currency at checkout.
+  var STRIPE_LINK = 'https://buy.stripe.com/3cIeVe2qx3I0aB646pbAs09';
+  var PLAN_TEXT = '£197 setup, then £49 a month. Cancel any time.';
 
   // n8n lead router ("Clinic Leads & Stripe Delivery"). If it is unreachable or rejects a
   // request, the request is routed to the clinic by email (cemail) instead, so no lead is lost.
@@ -1538,6 +1540,15 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
   setText('footTxt', isDemo
     ? 'Interactive preview for ' + clinicName + '. Guide prices reflect typical ' + cityLabel + ' ' + N.label.toLowerCase() + ' rates' + (CUR.visitor ? ', shown in each visitor’s own currency.' : ' in ' + CUR.code + '.')
     : '© ' + year + ' ' + clinicName + '. Prices shown are guide estimates for ' + cityLabel + ' and are ' + N.confirmAt + '.');
+  if (!isDemo && !isEdit) {
+    var pw = document.createElement('p');
+    pw.appendChild(document.createTextNode('Instant quotes by '));
+    var pwa = document.createElement('a');
+    pwa.href = 'https://aiengineered-hone9.vercel.app/?utm_source=calculator&utm_medium=embed';
+    pwa.target = '_blank'; pwa.rel = 'noopener'; pwa.textContent = 'AiEngineered'; pwa.style.color = 'inherit';
+    pw.appendChild(pwa);
+    $('footTxt').parentNode.appendChild(pw);
+  }
 
   /* ---------- Treatments + sizes ---------- */
   function renderMenu() {
@@ -1850,7 +1861,12 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     if (ctrl) opts.signal = ctrl.signal;
     return fetch(LEAD_WEBHOOK, opts).then(function (res) {
       clearTimeout(timer);
-      if (!res.ok) throw new Error('Webhook responded ' + res.status);
+      if (!res.ok) {
+        var err = new Error('Webhook responded ' + res.status);
+        // 403 = this business has no active plan: requests are switched off, so no email fallback either
+        err.inactive = res.status === 403;
+        throw err;
+      }
       return res;
     }, function (err) {
       clearTimeout(timer);
@@ -1964,9 +1980,10 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     postLead(payload).then(function () {
       setBusy(false);
       showDone('sent', v, payload);
-    }).catch(function () {
+    }).catch(function (err) {
       setBusy(false);
-      if (cemail) showDone('mail', v, payload);
+      if (err && err.inactive) formErr.textContent = clinicName + ' isn’t taking online requests at the moment. Please contact them directly.';
+      else if (cemail) showDone('mail', v, payload);
       else formErr.textContent = 'We couldn’t send your request. Please check your connection and try again.';
     });
   });
@@ -2093,12 +2110,10 @@ noscript p{position:relative;z-index:2;max-width:480px;margin:40px auto;padding:
     });
     checkoutBtn.href = checkoutUrl();
     // The price itself only appears on the Stripe checkout page
-    setText('pitchFine', 'Secure Stripe checkout' + (CUR.visitor ? ' in your local currency' : country !== 'uk' ? ' in ' + CUR.name : '') + ' · Automatic delivery');
-    setText('sheetFine', CUR.visitor
-      ? 'Secure checkout by Stripe. You’ll see the price in your local currency before you pay. No calls, no setup.'
-      : country !== 'uk'
-      ? 'Secure checkout by Stripe. You’ll see the price in ' + CUR.name + ' before you pay. No calls, no setup.'
-      : 'Secure checkout by Stripe. You’ll see the price before you pay. No calls, no setup.');
+    setText('pitchFine', PLAN_TEXT + ' Secure Stripe checkout · Automatic delivery');
+    setText('sheetFine', CUR.visitor || country !== 'uk'
+      ? PLAN_TEXT + ' Secure checkout by Stripe; you’ll see the exact amount in your currency before you pay. No calls needed.'
+      : PLAN_TEXT + ' Secure checkout by Stripe. No calls needed.');
 
     $('barOpen').addEventListener('click', openSheet);
     $('shareBtn').addEventListener('click', sharePreview);
